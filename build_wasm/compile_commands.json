@@ -7,6 +7,12 @@
 },
 {
   "directory": "/Users/adithyasridhar/cppprojects/routing-engine/build_wasm",
+  "command": "/Users/adithyasridhar/emsdk/upstream/emscripten/em++  @CMakeFiles/pathfinder_core.dir/includes_CXX.rsp -std=gnu++17 -o CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o -c /Users/adithyasridhar/cppprojects/routing-engine/src/algorithms/astar.cpp",
+  "file": "/Users/adithyasridhar/cppprojects/routing-engine/src/algorithms/astar.cpp",
+  "output": "CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o"
+},
+{
+  "directory": "/Users/adithyasridhar/cppprojects/routing-engine/build_wasm",
   "command": "/Users/adithyasridhar/emsdk/upstream/emscripten/em++  @CMakeFiles/pathfinder_core.dir/includes_CXX.rsp -std=gnu++17 -o CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o -c /Users/adithyasridhar/cppprojects/routing-engine/src/graph/graph.cpp",
   "file": "/Users/adithyasridhar/cppprojects/routing-engine/src/graph/graph.cpp",
   "output": "CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o"

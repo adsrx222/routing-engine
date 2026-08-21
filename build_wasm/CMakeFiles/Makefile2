@@ -88,12 +88,12 @@ clean: CMakeFiles/pathfinder_wasm.dir/clean
 CMakeFiles/pathfinder_core.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pathfinder_core.dir/build.make CMakeFiles/pathfinder_core.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pathfinder_core.dir/build.make CMakeFiles/pathfinder_core.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=1,2,3,4,5 "Built target pathfinder_core"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target pathfinder_core"
 .PHONY : CMakeFiles/pathfinder_core.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/pathfinder_core.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles 5
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles 6
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/pathfinder_core.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles 0
 .PHONY : CMakeFiles/pathfinder_core.dir/rule
@@ -105,7 +105,7 @@ pathfinder_core: CMakeFiles/pathfinder_core.dir/rule
 # codegen rule for target.
 CMakeFiles/pathfinder_core.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pathfinder_core.dir/build.make CMakeFiles/pathfinder_core.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=1,2,3,4,5 "Finished codegen for target pathfinder_core"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=1,2,3,4,5,6 "Finished codegen for target pathfinder_core"
 .PHONY : CMakeFiles/pathfinder_core.dir/codegen
 
 # clean rule for target.
@@ -120,12 +120,12 @@ CMakeFiles/pathfinder_core.dir/clean:
 CMakeFiles/pathfinder_wasm.dir/all: CMakeFiles/pathfinder_core.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pathfinder_wasm.dir/build.make CMakeFiles/pathfinder_wasm.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pathfinder_wasm.dir/build.make CMakeFiles/pathfinder_wasm.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=6,7 "Built target pathfinder_wasm"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=7,8 "Built target pathfinder_wasm"
 .PHONY : CMakeFiles/pathfinder_wasm.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/pathfinder_wasm.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles 7
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles 8
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/pathfinder_wasm.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles 0
 .PHONY : CMakeFiles/pathfinder_wasm.dir/rule
@@ -137,7 +137,7 @@ pathfinder_wasm: CMakeFiles/pathfinder_wasm.dir/rule
 # codegen rule for target.
 CMakeFiles/pathfinder_wasm.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pathfinder_wasm.dir/build.make CMakeFiles/pathfinder_wasm.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=6,7 "Finished codegen for target pathfinder_wasm"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=7,8 "Finished codegen for target pathfinder_wasm"
 .PHONY : CMakeFiles/pathfinder_wasm.dir/codegen
 
 # clean rule for target.

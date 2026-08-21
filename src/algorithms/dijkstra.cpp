@@ -22,10 +22,7 @@ namespace {
 
 }
 
-SearchResult Dijkstra::search(
-    const Graph& graph,
-    uint32_t start,
-    uint32_t goal) {
+SearchResult Dijkstra::search(const Graph& graph, uint32_t start, uint32_t goal) {
 
   SearchResult result{};
 
@@ -57,23 +54,16 @@ SearchResult Dijkstra::search(
 
   const uint32_t nodeCount = graph.nodeCount();
 
-  std::vector<float> distances(
-      nodeCount,
-      INF // starts at inf
-  );
+   // distances start at inf
+  std::vector<float> distances(nodeCount, INF);
 
   // previous nodes
-  std::vector<uint32_t> prev(
-      nodeCount,
-      UINT32_MAX // undefined
-  );
+  std::vector<uint32_t> prev(nodeCount, UINT32_MAX);
 
   // vector to prevent expanding the same node multiple times
-  std::vector<bool> expanded(
-      nodeCount,
-      false
-  );
+  std::vector<bool> expanded(nodeCount, false);
 
+  // priority queue (type = QueueEntry, container = std::vector<QueueEntry>, comparator = std::greater<QueueEntry>)
   std::priority_queue<QueueEntry,std::vector<QueueEntry>,std::greater<QueueEntry>> queue;
 
   // insert starting node

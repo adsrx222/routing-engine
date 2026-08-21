@@ -30,6 +30,9 @@ class Graph {
 
   const Edge& edge(uint32_t edgeId) const;
 
+  double nodeLat(uint32_t edgeId) const;
+  double nodeLon(uint32_t edgeId) const;
+
  private:
   std::vector<Node> nodes_;
   std::vector<uint32_t> offsets_;

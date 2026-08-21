@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # core library target
 add_library(pathfinder_core
     src/algorithms/dijkstra.cpp
+    src/algorithms/astar.cpp
     src/graph/graph.cpp
     src/graph/graph_loader.cpp
     src/router/router.cpp

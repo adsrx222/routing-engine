@@ -23,3 +23,11 @@ uint32_t Graph::edgeEnd(uint32_t nodeId) const {
 const Edge& Graph::edge(uint32_t edgeId) const {
     return edges_[edgeId];
 }
+
+double Graph::nodeLat(uint32_t nodeId) const {
+    return nodes_[nodeId].lat;
+}
+
+double Graph::nodeLon(uint32_t nodeId) const {
+    return nodes_[nodeId].lon;
+}

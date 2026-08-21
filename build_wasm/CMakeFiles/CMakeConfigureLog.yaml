@@ -1745,3 +1745,291 @@ events:
         - "/"
       CMAKE_FIND_ROOT_PATH: "/Users/adithyasridhar/emsdk/upstream/emscripten/cache/sysroot;/Users/adithyasridhar/emsdk/upstream/emscripten/cache/sysroot"
 ...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Platform/Emscripten.cmake:6 (find_file)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeSystemSpecificInformation.cmake:32 (include)"
+      - "CMakeLists.txt:4 (project)"
+    mode: "file"
+    variable: "_EMSCRIPTEN_PLATFORM_MODULE"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "Platform/Emscripten.cmake"
+    candidate_directories:
+      - "/Users/adithyasridhar/emsdk/upstream/emscripten/cmake/Modules/"
+    searched_directories:
+      - "/Users/adithyasridhar/emsdk/upstream/emscripten/cmake/Modules/Platform.framework/Headers/Emscripten.cmake"
+    found: "/Users/adithyasridhar/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+    search_context:
+      ENV{PATH}:
+        - "/Users/adithyasridhar/emsdk"
+        - "/Users/adithyasridhar/emsdk/upstream/emscripten"
+        - "/Users/adithyasridhar/emsdk/node/24.19.0_64bit/bin"
+        - "/Users/adithyasridhar/.turso"
+        - "/Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk/Contents/Home/bin"
+        - "/Users/adithyasridhar/.sdkman/candidates/java/current/bin"
+        - "/Users/adithyasridhar/.local/bin"
+        - "/opt/homebrew/bin"
+        - "/Applications/Postgres.app/Contents/Versions/latest/bin"
+        - "/Applications/Docker.app/Contents/Resources/bin"
+        - "/Users/adithyasridhar/.cargo/bin"
+        - "/Users/adithyasridhar/micromamba/bin"
+        - "/Users/adithyasridhar/micromamba/condabin"
+        - "/Users/adithyasridhar/.opam/5.2.0/bin"
+        - "/Library/Frameworks/Python.framework/Versions/3.14/bin"
+        - "/opt/homebrew/bin/python3"
+        - "/opt/homebrew/sbin"
+        - "/Library/Frameworks/Python.framework/Versions/3.13/bin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/pkg/env/global/bin"
+        - "/opt/X11/bin"
+        - "/Library/Apple/usr/bin"
+        - "/Applications/VMware Fusion.app/Contents/Public"
+        - "/usr/local/go/bin"
+        - "/Users/adithyasridhar/flutter/bin"
+        - "/Users/adithyasridhar/.lmstudio/bin"
+        - "/Users/adithyasridhar/tools/oss-cad-suite/bin"
+        - "/Users/adithyasridhar/Library/Android/sdk/platform-tools"
+        - "/Users/adithyasridhar/go/bin"
+        - "/opt/homebrew/lib/tinygo/bin"
+      CMAKE_INSTALL_PREFIX: "/Users/adithyasridhar/emsdk/upstream/emscripten/cache/sysroot"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/"
+      CMAKE_FIND_ROOT_PATH: "/Users/adithyasridhar/emsdk/upstream/emscripten/cache/sysroot"
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Platform/Emscripten.cmake:6 (find_file)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeSystemSpecificInformation.cmake:32 (include)"
+      - "CMakeLists.txt:4 (project)"
+    mode: "file"
+    variable: "_EMSCRIPTEN_PLATFORM_MODULE"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "Platform/Emscripten.cmake"
+    candidate_directories:
+      - "/Users/adithyasridhar/emsdk/upstream/emscripten/cmake/Modules/"
+    searched_directories:
+      - "/Users/adithyasridhar/emsdk/upstream/emscripten/cmake/Modules/Platform.framework/Headers/Emscripten.cmake"
+    found: "/Users/adithyasridhar/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+    search_context:
+      ENV{PATH}:
+        - "/Users/adithyasridhar/emsdk"
+        - "/Users/adithyasridhar/emsdk/upstream/emscripten"
+        - "/Users/adithyasridhar/emsdk/node/24.19.0_64bit/bin"
+        - "/Users/adithyasridhar/.turso"
+        - "/Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk/Contents/Home/bin"
+        - "/Users/adithyasridhar/.sdkman/candidates/java/current/bin"
+        - "/Users/adithyasridhar/.local/bin"
+        - "/opt/homebrew/bin"
+        - "/Applications/Postgres.app/Contents/Versions/latest/bin"
+        - "/Applications/Docker.app/Contents/Resources/bin"
+        - "/Users/adithyasridhar/.cargo/bin"
+        - "/Users/adithyasridhar/micromamba/bin"
+        - "/Users/adithyasridhar/micromamba/condabin"
+        - "/Users/adithyasridhar/.opam/5.2.0/bin"
+        - "/Library/Frameworks/Python.framework/Versions/3.14/bin"
+        - "/opt/homebrew/bin/python3"
+        - "/opt/homebrew/sbin"
+        - "/Library/Frameworks/Python.framework/Versions/3.13/bin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/pkg/env/global/bin"
+        - "/opt/X11/bin"
+        - "/Library/Apple/usr/bin"
+        - "/Applications/VMware Fusion.app/Contents/Public"
+        - "/usr/local/go/bin"
+        - "/Users/adithyasridhar/flutter/bin"
+        - "/Users/adithyasridhar/.lmstudio/bin"
+        - "/Users/adithyasridhar/tools/oss-cad-suite/bin"
+        - "/Users/adithyasridhar/Library/Android/sdk/platform-tools"
+        - "/Users/adithyasridhar/go/bin"
+        - "/opt/homebrew/lib/tinygo/bin"
+      CMAKE_INSTALL_PREFIX: "/Users/adithyasridhar/emsdk/upstream/emscripten/cache/sysroot"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/"
+      CMAKE_FIND_ROOT_PATH: "/Users/adithyasridhar/emsdk/upstream/emscripten/cache/sysroot"
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Platform/Emscripten.cmake:6 (find_file)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeSystemSpecificInformation.cmake:32 (include)"
+      - "CMakeLists.txt:4 (project)"
+    mode: "file"
+    variable: "_EMSCRIPTEN_PLATFORM_MODULE"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "Platform/Emscripten.cmake"
+    candidate_directories:
+      - "/Users/adithyasridhar/emsdk/upstream/emscripten/cmake/Modules/"
+    searched_directories:
+      - "/Users/adithyasridhar/emsdk/upstream/emscripten/cmake/Modules/Platform.framework/Headers/Emscripten.cmake"
+    found: "/Users/adithyasridhar/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+    search_context:
+      ENV{PATH}:
+        - "/Users/adithyasridhar/emsdk"
+        - "/Users/adithyasridhar/emsdk/upstream/emscripten"
+        - "/Users/adithyasridhar/emsdk/node/24.19.0_64bit/bin"
+        - "/Users/adithyasridhar/.turso"
+        - "/Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk/Contents/Home/bin"
+        - "/Users/adithyasridhar/.sdkman/candidates/java/current/bin"
+        - "/Users/adithyasridhar/.local/bin"
+        - "/opt/homebrew/bin"
+        - "/Applications/Postgres.app/Contents/Versions/latest/bin"
+        - "/Applications/Docker.app/Contents/Resources/bin"
+        - "/Users/adithyasridhar/.cargo/bin"
+        - "/Users/adithyasridhar/micromamba/bin"
+        - "/Users/adithyasridhar/micromamba/condabin"
+        - "/Users/adithyasridhar/.opam/5.2.0/bin"
+        - "/Library/Frameworks/Python.framework/Versions/3.14/bin"
+        - "/opt/homebrew/bin/python3"
+        - "/opt/homebrew/sbin"
+        - "/Library/Frameworks/Python.framework/Versions/3.13/bin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/pkg/env/global/bin"
+        - "/opt/X11/bin"
+        - "/Library/Apple/usr/bin"
+        - "/Applications/VMware Fusion.app/Contents/Public"
+        - "/usr/local/go/bin"
+        - "/Users/adithyasridhar/flutter/bin"
+        - "/Users/adithyasridhar/.lmstudio/bin"
+        - "/Users/adithyasridhar/tools/oss-cad-suite/bin"
+        - "/Users/adithyasridhar/Library/Android/sdk/platform-tools"
+        - "/Users/adithyasridhar/go/bin"
+        - "/opt/homebrew/lib/tinygo/bin"
+      CMAKE_INSTALL_PREFIX: "/Users/adithyasridhar/emsdk/upstream/emscripten/cache/sysroot"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/"
+      CMAKE_FIND_ROOT_PATH: "/Users/adithyasridhar/emsdk/upstream/emscripten/cache/sysroot"
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Platform/Emscripten.cmake:6 (find_file)"
+      - "/opt/homebrew/share/cmake/Modules/CMakeSystemSpecificInformation.cmake:32 (include)"
+      - "CMakeLists.txt:4 (project)"
+    mode: "file"
+    variable: "_EMSCRIPTEN_PLATFORM_MODULE"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "FIRST"
+      SearchAppBundle: "FIRST"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "Platform/Emscripten.cmake"
+    candidate_directories:
+      - "/Users/adithyasridhar/emsdk/upstream/emscripten/cmake/Modules/"
+    searched_directories:
+      - "/Users/adithyasridhar/emsdk/upstream/emscripten/cmake/Modules/Platform.framework/Headers/Emscripten.cmake"
+    found: "/Users/adithyasridhar/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+    search_context:
+      ENV{PATH}:
+        - "/Users/adithyasridhar/emsdk"
+        - "/Users/adithyasridhar/emsdk/upstream/emscripten"
+        - "/Users/adithyasridhar/emsdk/node/24.19.0_64bit/bin"
+        - "/Users/adithyasridhar/.turso"
+        - "/Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk/Contents/Home/bin"
+        - "/Users/adithyasridhar/.sdkman/candidates/java/current/bin"
+        - "/Users/adithyasridhar/.local/bin"
+        - "/opt/homebrew/bin"
+        - "/Applications/Postgres.app/Contents/Versions/latest/bin"
+        - "/Applications/Docker.app/Contents/Resources/bin"
+        - "/Users/adithyasridhar/.cargo/bin"
+        - "/Users/adithyasridhar/micromamba/bin"
+        - "/Users/adithyasridhar/micromamba/condabin"
+        - "/Users/adithyasridhar/.opam/5.2.0/bin"
+        - "/Library/Frameworks/Python.framework/Versions/3.14/bin"
+        - "/opt/homebrew/bin/python3"
+        - "/opt/homebrew/sbin"
+        - "/Library/Frameworks/Python.framework/Versions/3.13/bin"
+        - "/usr/local/bin"
+        - "/System/Cryptexes/App/usr/bin"
+        - "/usr/bin"
+        - "/bin"
+        - "/usr/sbin"
+        - "/sbin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin"
+        - "/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin"
+        - "/pkg/env/global/bin"
+        - "/opt/X11/bin"
+        - "/Library/Apple/usr/bin"
+        - "/Applications/VMware Fusion.app/Contents/Public"
+        - "/usr/local/go/bin"
+        - "/Users/adithyasridhar/flutter/bin"
+        - "/Users/adithyasridhar/.lmstudio/bin"
+        - "/Users/adithyasridhar/tools/oss-cad-suite/bin"
+        - "/Users/adithyasridhar/Library/Android/sdk/platform-tools"
+        - "/Users/adithyasridhar/go/bin"
+        - "/opt/homebrew/lib/tinygo/bin"
+      CMAKE_INSTALL_PREFIX: "/Users/adithyasridhar/emsdk/upstream/emscripten/cache/sysroot"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/"
+      CMAKE_FIND_ROOT_PATH: "/Users/adithyasridhar/emsdk/upstream/emscripten/cache/sysroot"
+...

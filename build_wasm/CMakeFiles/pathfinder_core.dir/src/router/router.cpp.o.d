@@ -639,4 +639,5 @@ CMakeFiles/pathfinder_core.dir/src/router/router.cpp.o: \
   /Users/adithyasridhar/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/cstdarg \
   /Users/adithyasridhar/cppprojects/routing-engine/src/router/../algorithms/search_result.h \
   /Users/adithyasridhar/cppprojects/routing-engine/src/router/../algorithms/search_event.h \
-  /Users/adithyasridhar/cppprojects/routing-engine/src/router/../algorithms/dijkstra.h
+  /Users/adithyasridhar/cppprojects/routing-engine/src/router/../algorithms/dijkstra.h \
+  /Users/adithyasridhar/cppprojects/routing-engine/src/router/../algorithms/astar.h

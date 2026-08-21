@@ -142,6 +142,30 @@ pathfinder_wasm/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pathfinder_wasm.dir/build.make CMakeFiles/pathfinder_wasm.dir/build
 .PHONY : pathfinder_wasm/fast
 
+src/algorithms/astar.o: src/algorithms/astar.cpp.o
+.PHONY : src/algorithms/astar.o
+
+# target to build an object file
+src/algorithms/astar.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pathfinder_core.dir/build.make CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o
+.PHONY : src/algorithms/astar.cpp.o
+
+src/algorithms/astar.i: src/algorithms/astar.cpp.i
+.PHONY : src/algorithms/astar.i
+
+# target to preprocess a source file
+src/algorithms/astar.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pathfinder_core.dir/build.make CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.i
+.PHONY : src/algorithms/astar.cpp.i
+
+src/algorithms/astar.s: src/algorithms/astar.cpp.s
+.PHONY : src/algorithms/astar.s
+
+# target to generate assembly for a file
+src/algorithms/astar.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pathfinder_core.dir/build.make CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.s
+.PHONY : src/algorithms/astar.cpp.s
+
 src/algorithms/dijkstra.o: src/algorithms/dijkstra.cpp.o
 .PHONY : src/algorithms/dijkstra.o
 
@@ -272,6 +296,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... pathfinder_core"
 	@echo "... pathfinder_wasm"
+	@echo "... src/algorithms/astar.o"
+	@echo "... src/algorithms/astar.i"
+	@echo "... src/algorithms/astar.s"
 	@echo "... src/algorithms/dijkstra.o"
 	@echo "... src/algorithms/dijkstra.i"
 	@echo "... src/algorithms/dijkstra.s"

@@ -87,11 +87,26 @@ CMakeFiles/pathfinder_core.dir/src/algorithms/dijkstra.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/pathfinder_core.dir/src/algorithms/dijkstra.cpp.s"
 	/Users/adithyasridhar/emsdk/upstream/emscripten/em++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/adithyasridhar/cppprojects/routing-engine/src/algorithms/dijkstra.cpp -o CMakeFiles/pathfinder_core.dir/src/algorithms/dijkstra.cpp.s
 
+CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o: CMakeFiles/pathfinder_core.dir/flags.make
+CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o: CMakeFiles/pathfinder_core.dir/includes_CXX.rsp
+CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o: /Users/adithyasridhar/cppprojects/routing-engine/src/algorithms/astar.cpp
+CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o: CMakeFiles/pathfinder_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o"
+	/Users/adithyasridhar/emsdk/upstream/emscripten/em++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o -MF CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o.d -o CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o -c /Users/adithyasridhar/cppprojects/routing-engine/src/algorithms/astar.cpp
+
+CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.i"
+	/Users/adithyasridhar/emsdk/upstream/emscripten/em++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/adithyasridhar/cppprojects/routing-engine/src/algorithms/astar.cpp > CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.i
+
+CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.s"
+	/Users/adithyasridhar/emsdk/upstream/emscripten/em++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/adithyasridhar/cppprojects/routing-engine/src/algorithms/astar.cpp -o CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.s
+
 CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o: CMakeFiles/pathfinder_core.dir/flags.make
 CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o: CMakeFiles/pathfinder_core.dir/includes_CXX.rsp
 CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o: /Users/adithyasridhar/cppprojects/routing-engine/src/graph/graph.cpp
 CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o: CMakeFiles/pathfinder_core.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o"
 	/Users/adithyasridhar/emsdk/upstream/emscripten/em++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o -MF CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o.d -o CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o -c /Users/adithyasridhar/cppprojects/routing-engine/src/graph/graph.cpp
 
 CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.i: cmake_force
@@ -106,7 +121,7 @@ CMakeFiles/pathfinder_core.dir/src/graph/graph_loader.cpp.o: CMakeFiles/pathfind
 CMakeFiles/pathfinder_core.dir/src/graph/graph_loader.cpp.o: CMakeFiles/pathfinder_core.dir/includes_CXX.rsp
 CMakeFiles/pathfinder_core.dir/src/graph/graph_loader.cpp.o: /Users/adithyasridhar/cppprojects/routing-engine/src/graph/graph_loader.cpp
 CMakeFiles/pathfinder_core.dir/src/graph/graph_loader.cpp.o: CMakeFiles/pathfinder_core.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/pathfinder_core.dir/src/graph/graph_loader.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/pathfinder_core.dir/src/graph/graph_loader.cpp.o"
 	/Users/adithyasridhar/emsdk/upstream/emscripten/em++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/pathfinder_core.dir/src/graph/graph_loader.cpp.o -MF CMakeFiles/pathfinder_core.dir/src/graph/graph_loader.cpp.o.d -o CMakeFiles/pathfinder_core.dir/src/graph/graph_loader.cpp.o -c /Users/adithyasridhar/cppprojects/routing-engine/src/graph/graph_loader.cpp
 
 CMakeFiles/pathfinder_core.dir/src/graph/graph_loader.cpp.i: cmake_force
@@ -121,7 +136,7 @@ CMakeFiles/pathfinder_core.dir/src/router/router.cpp.o: CMakeFiles/pathfinder_co
 CMakeFiles/pathfinder_core.dir/src/router/router.cpp.o: CMakeFiles/pathfinder_core.dir/includes_CXX.rsp
 CMakeFiles/pathfinder_core.dir/src/router/router.cpp.o: /Users/adithyasridhar/cppprojects/routing-engine/src/router/router.cpp
 CMakeFiles/pathfinder_core.dir/src/router/router.cpp.o: CMakeFiles/pathfinder_core.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/pathfinder_core.dir/src/router/router.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/pathfinder_core.dir/src/router/router.cpp.o"
 	/Users/adithyasridhar/emsdk/upstream/emscripten/em++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/pathfinder_core.dir/src/router/router.cpp.o -MF CMakeFiles/pathfinder_core.dir/src/router/router.cpp.o.d -o CMakeFiles/pathfinder_core.dir/src/router/router.cpp.o -c /Users/adithyasridhar/cppprojects/routing-engine/src/router/router.cpp
 
 CMakeFiles/pathfinder_core.dir/src/router/router.cpp.i: cmake_force
@@ -135,6 +150,7 @@ CMakeFiles/pathfinder_core.dir/src/router/router.cpp.s: cmake_force
 # Object files for target pathfinder_core
 pathfinder_core_OBJECTS = \
 "CMakeFiles/pathfinder_core.dir/src/algorithms/dijkstra.cpp.o" \
+"CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o" \
 "CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o" \
 "CMakeFiles/pathfinder_core.dir/src/graph/graph_loader.cpp.o" \
 "CMakeFiles/pathfinder_core.dir/src/router/router.cpp.o"
@@ -143,12 +159,13 @@ pathfinder_core_OBJECTS = \
 pathfinder_core_EXTERNAL_OBJECTS =
 
 libpathfinder_core.a: CMakeFiles/pathfinder_core.dir/src/algorithms/dijkstra.cpp.o
+libpathfinder_core.a: CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o
 libpathfinder_core.a: CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o
 libpathfinder_core.a: CMakeFiles/pathfinder_core.dir/src/graph/graph_loader.cpp.o
 libpathfinder_core.a: CMakeFiles/pathfinder_core.dir/src/router/router.cpp.o
 libpathfinder_core.a: CMakeFiles/pathfinder_core.dir/build.make
 libpathfinder_core.a: CMakeFiles/pathfinder_core.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX static library libpathfinder_core.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX static library libpathfinder_core.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/pathfinder_core.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/pathfinder_core.dir/link.txt --verbose=$(VERBOSE)
 

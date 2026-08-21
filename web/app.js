@@ -23,6 +23,7 @@ function initMap() {
 
     document.getElementById('route-btn').addEventListener('click', runRouting);
     document.getElementById('reset-btn').addEventListener('click', resetUI);
+    document.getElementById('algo-select').addEventListener('change', resetUI);
 }
 
 async function initWASM() {
@@ -36,22 +37,19 @@ async function initWASM() {
         const buffer = await response.arrayBuffer();
         
         // --- PARSE BINARY GRAPH FOR COORDINATES ---
-        // Header: "NAV1" (4 bytes), version (4), node_count (4), edge_count (4)
         const dataView = new DataView(buffer);
-        const nodeCount = dataView.getUint32(8, true); // Little endian[cite: 9]
+        const nodeCount = dataView.getUint32(8, true); // Little endian
         
         const HEADER_SIZE = 16;
-        const NODE_SIZE = 40; // uint64 + 4 doubles[cite: 9]
+        const NODE_SIZE = 40; // uint64 + 4 doubles
 
-        // Extract lat/lon for every node to handle map rendering in JS
         for (let i = 0; i < nodeCount; i++) {
             const offset = HEADER_SIZE + (i * NODE_SIZE);
-            const lat = dataView.getFloat64(offset + 8, true);  // Offset 8 skips the 8-byte osm_id[cite: 9]
+            const lat = dataView.getFloat64(offset + 8, true); 
             const lon = dataView.getFloat64(offset + 16, true); 
             nodeCoordinates.push([lat, lon]);
         }
         
-        // Write the binary to Emscripten's virtual file system so C++ can load it
         Module.FS.writeFile('/graph.bin', new Uint8Array(buffer));
         graph = Module.GraphLoader.load('/graph.bin');
         router = new Module.Router(graph);
@@ -65,13 +63,11 @@ async function initWASM() {
     }
 }
 
-// Find the closest graph node to where the user clicked
 function findNearestNode(lat, lon) {
     let minDist = Infinity;
     let nearestId = -1;
     for (let i = 0; i < nodeCoordinates.length; i++) {
         const [nLat, nLon] = nodeCoordinates[i];
-        // Simple squared distance for local approximations
         const dist = Math.pow(nLat - lat, 2) + Math.pow(nLon - lon, 2);
         if (dist < minDist) {
             minDist = dist;
@@ -121,7 +117,11 @@ async function runRouting() {
     document.getElementById('route-btn').disabled = true;
 
     try {
-        const result = router.route(Module.Algorithm.Dijkstra, startNodeId, goalNodeId);
+        // Read selected algorithm from dropdown
+        const algoChoice = document.getElementById('algo-select').value;
+        const algorithm = algoChoice === 'AStar' ? Module.Algorithm.AStar : Module.Algorithm.Dijkstra;
+
+        const result = router.route(algorithm, startNodeId, goalNodeId);
         
         if (result.found) {
             await visualizeSearch(result.events);
@@ -130,7 +130,6 @@ async function runRouting() {
             alert('No path found in DC network.');
         }
         
-        // Safely delete C++ memory if Emscripten provided vector handles instead of standard JS arrays
         if (result.events && typeof result.events.delete === 'function') result.events.delete();
         if (result.path && typeof result.path.delete === 'function') result.path.delete();
         
@@ -173,8 +172,6 @@ async function visualizeSearch(events) {
         const line = L.polyline([fromCoords, toCoords], { color, weight, opacity }).addTo(map);
         mapLayers.push(line);
 
-        // Increased batch size from 20 to 200 so it animates much faster
-        // and doesn't take 5 minutes to draw 30,000+ lines!
         if (i % 200 === 0) await new Promise(r => setTimeout(r, 1)); 
     }
 }

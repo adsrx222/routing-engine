@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o"
+  "CMakeFiles/pathfinder_core.dir/src/algorithms/astar.cpp.o.d"
   "CMakeFiles/pathfinder_core.dir/src/algorithms/dijkstra.cpp.o"
   "CMakeFiles/pathfinder_core.dir/src/algorithms/dijkstra.cpp.o.d"
   "CMakeFiles/pathfinder_core.dir/src/graph/graph.cpp.o"

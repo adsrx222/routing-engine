@@ -10,7 +10,8 @@ using namespace emscripten;
 EMSCRIPTEN_BINDINGS(pathfinder_module) {
   // Enums
   enum_<Algorithm>("Algorithm")
-      .value("Dijkstra", Algorithm::Dijkstra);
+      .value("Dijkstra", Algorithm::Dijkstra)
+      .value("AStar", Algorithm::AStar);
 
   enum_<SearchEventType>("SearchEventType")
       .value("FoundNode", SearchEventType::FoundNode)
