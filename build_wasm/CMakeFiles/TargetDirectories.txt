@@ -1,0 +1,4 @@
+/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles/pathfinder_core.dir
+/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles/pathfinder_wasm.dir
+/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles/edit_cache.dir
+/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/CMakeFiles/rebuild_cache.dir

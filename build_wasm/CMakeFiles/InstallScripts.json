@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/adithyasridhar/cppprojects/routing-engine/build_wasm/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

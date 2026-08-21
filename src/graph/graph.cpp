@@ -1,0 +1,25 @@
+#include "graph.h"
+
+const Node& Graph::node(uint32_t id) const {
+    return nodes_[id];
+}
+
+uint32_t Graph::nodeCount() const {
+    return static_cast<uint32_t>(nodes_.size());
+}
+
+uint32_t Graph::edgeCount() const {
+    return static_cast<uint32_t>(edges_.size());
+}
+
+uint32_t Graph::edgeBegin(uint32_t nodeId) const {
+    return static_cast<uint32_t>(offsets_[nodeId]);
+}
+
+uint32_t Graph::edgeEnd(uint32_t nodeId) const {
+    return static_cast<uint32_t>(offsets_[nodeId + 1]);
+}
+
+const Edge& Graph::edge(uint32_t edgeId) const {
+    return edges_[edgeId];
+}
