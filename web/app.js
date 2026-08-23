@@ -116,10 +116,13 @@ async function runRouting() {
     try {
         const algoChoice = document.getElementById('algo-select').value;
         let algorithm;
+        
         if (algoChoice === 'AStar') {
             algorithm = Module.Algorithm.AStar;
         } else if (algoChoice === 'DoubleAStar') {
             algorithm = Module.Algorithm.Double_AStar;
+        } else if (algoChoice === 'DoubleDijkstra') {
+            algorithm = Module.Algorithm.Double_Dijkstra;
         } else {
             algorithm = Module.Algorithm.Dijkstra;
         }

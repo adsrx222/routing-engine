@@ -2,7 +2,7 @@
 
 #include "../algorithms/algorithm.h"
 
-enum class Algorithm { Dijkstra, AStar, Double_AStar };
+enum class Algorithm { Dijkstra, AStar, Double_Dijkstra, Double_AStar };
 
 class Router {
  public:

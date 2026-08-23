@@ -1,6 +1,7 @@
 #include "router.h"
 #include "../algorithms/dijkstra.h"
 #include "../algorithms/astar.h"
+#include "../algorithms/double_dijkstra.h"
 #include "../algorithms/double_astar.h"
 #include <stdexcept>
 
@@ -17,6 +18,10 @@ SearchResult Router::route(Algorithm algorithm, uint32_t start, uint32_t goal) {
         case Algorithm::AStar: {
             AStar astar;
             return astar.search(graph_, start, goal);
+        }
+        case Algorithm::Double_Dijkstra: {
+            Double_Dijkstra d_dijkstra;
+            return d_dijkstra.search(graph_, start, goal);
         }
         case Algorithm::Double_AStar: {
             Double_AStar d_astar;

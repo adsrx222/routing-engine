@@ -12,7 +12,8 @@ EMSCRIPTEN_BINDINGS(pathfinder_module) {
   enum_<Algorithm>("Algorithm")
       .value("Dijkstra", Algorithm::Dijkstra)
       .value("AStar", Algorithm::AStar)
-      .value("Double_AStar", Algorithm::Double_AStar);
+      .value("Double_AStar", Algorithm::Double_AStar)
+      .value("Double_Dijkstra", Algorithm::Double_Dijkstra);
 
   enum_<SearchEventType>("SearchEventType")
       .value("FoundNode", SearchEventType::FoundNode)
