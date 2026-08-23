@@ -52,14 +52,19 @@
                 <option value="DoubleAStar">Bidirectional A* Search</option>
             </select>
         </p>
+        <p>
+            <strong>Animation Speed:</strong>
+            <span id="speed-value" style="float: right;">100</span>
+            <input type="range" id="speed-slider" style="width: 100%; margin-top: 5px;">
+            <span class="help-text" style="display: block; margin-bottom: 0;">Higher = faster (fewer pauses while drawing search edges).</span>
+        </p>
+        <p>
+            <label style="cursor: pointer;">
+                <input type="checkbox" id="sound-toggle" checked> Enable Sound Effects
+            </label>
+        </p>
         <button id="route-btn" disabled>Calculate Route</button>
         <button id="reset-btn">Reset Map</button>
-
-        <div class="legend">
-            <div><div class="color-box" style="background: gray;"></div> Expanded Path</div>
-            <div><div class="color-box" style="background: orange;"></div> Relaxed Path (Better)</div>
-            <div><div class="color-box" style="background: blue;"></div> Final Optimal Path</div>
-        </div>
     </div>
 
     <!-- Leaflet JS -->
