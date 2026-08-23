@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(pathfinder_core
     src/algorithms/dijkstra.cpp
     src/algorithms/astar.cpp
+    src/algorithms/double_astar.cpp
     src/graph/graph.cpp
     src/graph/graph_loader.cpp
     src/router/router.cpp

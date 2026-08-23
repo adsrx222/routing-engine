@@ -1,1 +1,0 @@
-/Users/adithyasridhar/emsdk/upstream/emscripten/em++ --bind -sALLOW_MEMORY_GROWTH=1 -sFORCE_FILESYSTEM=1 -sMODULARIZE=1 -sEXPORT_NAME=\"PathfinderModule\" "-sEXPORTED_RUNTIME_METHODS=['FS']" @CMakeFiles/pathfinder_wasm.dir/objects1.rsp -o /Users/adithyasridhar/cppprojects/routing-engine/web/dist/pathfinder.js @CMakeFiles/pathfinder_wasm.dir/linkLibs.rsp

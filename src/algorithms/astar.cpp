@@ -74,14 +74,6 @@ SearchResult AStar::search(const Graph& graph, uint32_t start, uint32_t goal) {
     if (start == goal) {
         result.found = true;
         result.path.push_back(start);
-
-        result.events.push_back({
-            SearchEventType::FoundNode,
-            SearchDirection::Forward,
-            start,
-            start
-        });
-
         return result;
     }
 
@@ -148,21 +140,10 @@ SearchResult AStar::search(const Graph& graph, uint32_t start, uint32_t goal) {
             float tentative_g_score = g_score[currentNode] + edge.distance;
 
             if (tentative_g_score < g_score[neighbor]) {
-
-                result.events.push_back({
-                    SearchEventType::Relax,
-                    SearchDirection::Forward,
-                    currentNode,
-                    neighbor
-                });
-
                 came_from[neighbor] = currentNode;
                 g_score[neighbor] = tentative_g_score;
-
                 float tentative_f_score = tentative_g_score + static_cast<float>(h(graph.nodeLat(neighbor),graph.nodeLon(neighbor)));
-
                 f_score[neighbor] = tentative_f_score;
-
                 queue.push({tentative_f_score,tentative_g_score,neighbor});
             }
         }

@@ -11,12 +11,12 @@ EMSCRIPTEN_BINDINGS(pathfinder_module) {
   // Enums
   enum_<Algorithm>("Algorithm")
       .value("Dijkstra", Algorithm::Dijkstra)
-      .value("AStar", Algorithm::AStar);
+      .value("AStar", Algorithm::AStar)
+      .value("Double_AStar", Algorithm::Double_AStar);
 
   enum_<SearchEventType>("SearchEventType")
       .value("FoundNode", SearchEventType::FoundNode)
-      .value("FoundEdge", SearchEventType::FoundEdge)
-      .value("Relax", SearchEventType::Relax);
+      .value("FoundEdge", SearchEventType::FoundEdge);
 
   enum_<SearchDirection>("SearchDirection")
       .value("Forward", SearchDirection::Forward)
@@ -31,7 +31,8 @@ EMSCRIPTEN_BINDINGS(pathfinder_module) {
       .field("type", &SearchEvent::type)
       .field("direction", &SearchEvent::direction)
       .field("from", &SearchEvent::from)
-      .field("to", &SearchEvent::to);
+      .field("to", &SearchEvent::to)
+      .field("node", &SearchEvent::node);
 
   value_object<SearchResult>("SearchResult")
       .field("found", &SearchResult::found)

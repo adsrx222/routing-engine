@@ -42,13 +42,6 @@ SearchResult Dijkstra::search(const Graph& graph, uint32_t start, uint32_t goal)
     result.found = true;
     result.path.push_back(start);
 
-    result.events.push_back({
-        SearchEventType::FoundNode,
-        SearchDirection::Forward,
-        start,
-        start
-    });
-
     return result;
   }
 
@@ -70,12 +63,6 @@ SearchResult Dijkstra::search(const Graph& graph, uint32_t start, uint32_t goal)
   distances[start] = 0.0f;
   queue.push({
       0.0f,
-      start
-  });
-  result.events.push_back({
-      SearchEventType::FoundNode,
-      SearchDirection::Forward,
-      start,
       start
   });
 
@@ -127,18 +114,9 @@ SearchResult Dijkstra::search(const Graph& graph, uint32_t start, uint32_t goal)
 
       // relax  edge if better route is found
       if (newDistance < distances[neighbor]) {
-
         distances[neighbor] = newDistance;
         prev[neighbor] = currentNode;
-
         queue.push({newDistance, neighbor}); // push new nodes
-
-        result.events.push_back({
-            SearchEventType::Relax,
-            SearchDirection::Forward,
-            currentNode,
-            neighbor
-        });
       }
     }
   }
