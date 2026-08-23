@@ -1,0 +1,25 @@
+# CMake Build Directories
+build/
+build_wasm/
+CMakeCache.txt
+CMakeFiles/
+
+# Tooling
+compile_commands.json
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# WebAssembly & Frontend Build Output
+web/dist/
+*.wasm
+
+# Binary Data Files
+*.bin
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
