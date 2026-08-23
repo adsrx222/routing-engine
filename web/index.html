@@ -3,60 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DC Pathfinder Visualizer</title>
-    <!-- Leaflet CSS -->
+    <title>Pathfinder Visualizer</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { margin: 0; padding: 0; font-family: sans-serif; }
-        #map { width: 100vw; height: 100vh; }
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333;
+            --border-radius: 12px;
+            --primary: #007bff;
+            --primary-hover: #0056b3;
+            --error: #f44336;
+        }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #111; }
+        #map { width: 100vw; height: 100vh; background: #1a1a1a; }
+        
         #ui-panel {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            background: white;
-            padding: 15px;
+            position: absolute; top: 15px; right: 15px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
+            padding: 20px; border-radius: var(--border-radius);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3); width: 320px; transition: all 0.3s ease;
+        }
+        h2 { margin-top: 0; font-size: 1.4em; color: var(--text-color); }
+        select, button {
+            width: 100%; padding: 10px; margin-top: 8px; border-radius: 8px;
+            border: 1px solid #ddd; font-size: 14px; transition: all 0.2s ease;
+        }
+        select { background-color: #f9f9f9; cursor: pointer; outline: none; }
+        select:hover, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(0,123,255,0.25); }
+        
+        button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: 600; }
+        button:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-1px); }
+        button:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        
+        .help-text { font-size: 0.85em; color: #666; font-style: italic; margin-bottom: 10px; }
+        .stat-box { background: #f0f4f8; padding: 10px; border-radius: 8px; margin: 10px 0; display: none; }
+        
+        /* Snackbar Notification */
+        #snackbar {
+            visibility: hidden; min-width: 250px; background-color: var(--error);
+            color: #fff; text-align: center; border-radius: 8px; padding: 16px;
+            position: fixed; z-index: 2000; left: 50%; bottom: 30px;
+            transform: translateX(-50%) translateY(20px); opacity: 0; 
+            transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+            font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        #snackbar.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        .custom-dropdown-selected {
+            background-color: var(--bg-color); /* White background */
+            padding: 10px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            width: 300px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            user-select: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        select {
-            width: 100%; padding: 8px; margin-top: 5px;
+        .custom-dropdown-selected:after {
+            content: '▼';
+            position: absolute;
+            right: 12px;
+            top: 10px;
+            font-size: 12px;
+            color: #666;
         }
-        button {
-            width: 100%; padding: 10px; margin-top: 10px;
-            background: #007bff; color: white; border: none; cursor: pointer;
+        .custom-dropdown-selected:hover {
+            border-color: var(--primary);
         }
-        button:disabled { background: #ccc; }
-        .legend { margin-top: 15px; font-size: 0.9em; }
-        .legend div { display: flex; align-items: center; margin-bottom: 5px; }
-        .color-box { width: 15px; height: 15px; margin-right: 10px; border-radius: 3px; }
-        .help-text { font-size: 0.85em; color: #555; font-style: italic; margin-bottom: 10px;}
+        .custom-dropdown-options {
+            display: none;
+            position: absolute;
+            background-color: var(--bg-color);
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-top: 4px;
+            z-index: 1001;
+            overflow: hidden;
+        }
+        .custom-dropdown-options.show {
+            display: block;
+        }
+        .custom-dropdown-option {
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .custom-dropdown-option:hover {
+            background-color: #f0f4f8;
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    <div id="snackbar"></div>
     
     <div id="ui-panel">
-        <h2>DC Routing Engine</h2>
-        <div id="status">Loading WASM and Graph Data...</div>
-        <hr>
+        <h2>Routing Engine</h2>
+        <div id="status">Loading WASM...</div>
+        <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
+        
+        <p><strong>Select City:</strong>
+            <select id="city-select" class="custom-select">
+                <option value="dc">Washington DC</option>
+                <option value="ny">New York</option>
+                <option value="sf">San Francisco</option>
+                <option value="seattle">Seattle</option>
+            </select>
+        </p>
+        
         <p class="help-text">Click anywhere on the map to select your start and goal locations.</p>
         <p><strong>Start Node:</strong> <span id="start-node">None</span></p>
         <p><strong>Goal Node:</strong> <span id="goal-node">None</span></p>
+        
         <p><strong>Algorithm:</strong> 
-            <select id="algo-select">
+            <select id="algo-select" class="custom-select">
                 <option value="Dijkstra">Dijkstra</option>
                 <option value="AStar">A* Search</option>
                 <option value="DoubleDijkstra">Bidirectional Dijkstra</option>
                 <option value="DoubleAStar">Bidirectional A* Search</option>
             </select>
         </p>
+        
+        <div id="distance-box" class="stat-box">
+            <strong>Total Distance:</strong> <span id="route-distance">0.00</span> km
+        </div>
+
         <p>
-            <strong>Animation Speed:</strong>
-            <span id="speed-value" style="float: right;">100</span>
+            <strong>Animation Speed:</strong> <span id="speed-value" style="float: right;">100</span>
             <input type="range" id="speed-slider" style="width: 100%; margin-top: 5px;">
-            <span class="help-text" style="display: block; margin-bottom: 0;">Higher = faster (fewer pauses while drawing search edges).</span>
         </p>
         <p>
             <label style="cursor: pointer;">
@@ -64,14 +145,11 @@
             </label>
         </p>
         <button id="route-btn" disabled>Calculate Route</button>
-        <button id="reset-btn">Reset Map</button>
+        <button id="reset-btn" style="background: #6c757d;">Reset Map</button>
     </div>
 
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- Emscripten WASM Wrapper -->
     <script src="dist/pathfinder.js"></script>
-    <!-- Application Logic -->
     <script src="app.js"></script>
 </body>
 </html>

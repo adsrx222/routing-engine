@@ -14,7 +14,13 @@ import osmnx as ox
 import networkx as nx
 
 
-PLACE = "Washington, DC, USA"
+# Define the target cities and their corresponding OSM queries
+CITIES = {
+    "dc": "Washington, DC, USA",
+    "ny": "New York City, New York, USA",
+    "sf": "San Francisco, California, USA",
+    "seattle": "Seattle, Washington, USA"
+}
 
 # Binary format:
 #
@@ -37,7 +43,6 @@ PLACE = "Washington, DC, USA"
 # Edge:
 #   uint32   to
 #   float    length_m
-
 
 HEADER_FORMAT = "<4sIII"
 NODE_FORMAT = "<Qdddd"
@@ -107,9 +112,6 @@ def write_graph_binary(G, output_path):
             y = float(data["y"])
 
             # Geographic coordinates
-            lon = float(G.graph.get("_original_lon", 0.0))
-            lat = float(G.graph.get("_original_lat", 0.0))
-
             lon = float(data["original_lon"])
             lat = float(data["original_lat"])
 
@@ -171,13 +173,11 @@ def create_mock_graph():
     return G
 
 
-
-
 def main():
     parser = argparse.ArgumentParser(
         description=(
-            "Download and preprocess the Washington, DC "
-            "road network into a binary graph."
+            "Download and preprocess road networks "
+            "into binary graphs for multiple cities."
         )
     )
 
@@ -185,80 +185,62 @@ def main():
         "workspace",
         help=(
             "Workspace directory where the generated "
-            "graph file will be stored."
+            "graph files will be stored."
         ),
     )
 
     args = parser.parse_args()
-
     workspace = os.path.abspath(args.workspace)
-
-    os.makedirs(
-        workspace,
-        exist_ok=True,
-    )
-
-    cache_dir = os.path.join(
-        workspace,
-        ".osmnx_cache",
-    )
-
-    os.makedirs(
-        cache_dir,
-        exist_ok=True,
-    )
+    
+    # Define and create the output directory path
+    dist_dir = os.path.join(workspace, "web")
+    os.makedirs(dist_dir, exist_ok=True)
+    
+    # Define cache directory path
+    cache_dir = os.path.join(workspace, ".osmnx_cache")
+    os.makedirs(cache_dir, exist_ok=True)
 
     ox.settings.use_cache = True
     ox.settings.cache_folder = cache_dir
 
-    print(f"Downloading OSM data for {PLACE}...")
+    # Iterate through all configured cities
+    for city_prefix, place_query in CITIES.items():
+        print(f"\n--- Downloading OSM data for {place_query} ---")
 
-    G = ox.graph.graph_from_place(
-        PLACE,
-        network_type="drive",
-        simplify=True,
-        retain_all=True,
-    )
-
-    for node_id, data in G.nodes(data=True):
-        data["original_lon"] = float(data["x"])
-        data["original_lat"] = float(data["y"])
-
-    G_projected = ox.projection.project_graph(G)
-
-    for node_id, data in G_projected.nodes(data=True):
-        original = G.nodes[node_id]
-
-        data["original_lon"] = float(
-            original["original_lon"]
+        G = ox.graph.graph_from_place(
+            place_query,
+            network_type="drive",
+            simplify=True,
+            retain_all=True,
         )
 
-        data["original_lat"] = float(
-            original["original_lat"]
-        )
+        for node_id, data in G.nodes(data=True):
+            data["original_lon"] = float(data["x"])
+            data["original_lat"] = float(data["y"])
 
-    output_graph = os.path.join(
-        workspace,
-        "graph.bin",
-    )
+        G_projected = ox.projection.project_graph(G)
 
-    write_graph_binary(
-        G_projected,
-        output_graph,
-    )
+        for node_id, data in G_projected.nodes(data=True):
+            original = G.nodes[node_id]
+            data["original_lon"] = float(original["original_lon"])
+            data["original_lat"] = float(original["original_lat"])
+
+        # Output to the new web/dist folder
+        output_graph = os.path.join(dist_dir, f"{city_prefix}_graph.bin")
+
+        write_graph_binary(G_projected, output_graph)
     
+    # Generate the mock graph once at the end
     mock_G = create_mock_graph()
-    mock_output = os.path.join(workspace, "mock_graph.bin")
+    mock_output = os.path.join(dist_dir, "mock_graph.bin")
     
-    print("Generating mock graph for tests...")
+    print("\n--- Generating mock graph for tests ---")
     write_graph_binary(mock_G, mock_output)
 
-    print("Finished!")
-    print()
+    print("Finished downloading all city networks!")
     print(f"  Workspace: {workspace}")
-    print(f"  Cache:     {cache_dir}")
-    print(f"  Graph:     {output_graph}")
-    print()
+    print(f"  Output Dir: {dist_dir}")
+    print(f"  Cache:     {cache_dir}\n")
 
 
 if __name__ == "__main__":

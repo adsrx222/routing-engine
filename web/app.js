@@ -1,35 +1,126 @@
 let map, router, Module, graph;
 let startNodeId = null;
 let goalNodeId = null;
-let mapLayers = [];    // start/goal selection markers only
-let routeLayers = [];  // search edges, final path segments, meeting-node marker — cleared at the start of every route calculation
+let mapLayers = [];    
+let routeLayers = [];  
 let nodeCoordinates = [];
 let audioCtx = null;
-let masterCompressor = null; // shared limiter bus all tones route through
-let currentRunId = 0;   // bumped whenever resetUI() fires; in-flight animation loops check this to know they've been cancelled
-let activeTones = [];   // { osc, gain } for tones currently sounding, so resetUI() can silence them
+let masterCompressor = null; 
+let currentRunId = 0;   
+let activeTones = [];   
+
+const DEFAULT_BATCH_SIZE = 100;
+const MIN_BATCH_SIZE = 1;
+const MAX_BATCH_SIZE = 500;
+const SEARCH_BATCH_DELAY_MS = 1; 
+const PATH_STEP_MS = 15;                
+const PATH_NOTE_DURATION_S = 0.15;      
+const PATH_FINAL_NOTE_DURATION_S = 1.5; 
 
 document.addEventListener('DOMContentLoaded', async () => {
+    setupCustomDropdowns();
     initMap();
     await initWASM();
 });
 
 function initMap() {
     map = L.map('map').setView([38.9072, -77.0369], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
+    
+    // Dark, less detailed map overlay
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap contributors, © CARTO'
     }).addTo(map);
 
     map.on('click', (e) => {
-        if (nodeCoordinates.length === 0) return; // graph not loaded yet
+        if (nodeCoordinates.length === 0) return; 
         handleMapClick(e.latlng);
     });
 
     document.getElementById('route-btn').addEventListener('click', runRouting);
     document.getElementById('reset-btn').addEventListener('click', resetUI);
-    document.getElementById('algo-select').addEventListener('change', resetUI);
+    
+    const algoSelect = document.getElementById('algo-select');
+    if (algoSelect) {
+        algoSelect.addEventListener('change', () => {
+            // Stop any ongoing animations and sounds
+            currentRunId++;
+            stopAllTones();
+            
+            // Clear only the drawn routes and search edges, not the start/goal markers
+            clearRouteLayers();
+            
+            // Hide the distance box from the previous run
+            document.getElementById('distance-box').style.display = 'none';
+            
+            // Re-enable the calculate button if both points are already selected
+            if (startNodeId !== null && goalNodeId !== null) {
+                document.getElementById('route-btn').disabled = false;
+            }
+        });
+    }
+    
+    const citySelect = document.getElementById('city-select');
+    if (citySelect) {
+        citySelect.addEventListener('change', async (e) => {
+            resetUI();
+            await loadCityGraph(e.target.value);
+        });
+    }
 
     initSpeedControl();
+}
+
+function setupCustomDropdowns() {
+    const selects = document.querySelectorAll('select');
+    
+    selects.forEach(select => {
+        if (select.dataset.customized) return;
+        select.dataset.customized = 'true';
+        select.style.display = 'none';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'custom-dropdown';
+        
+        const selected = document.createElement('div');
+        selected.className = 'custom-dropdown-selected';
+        selected.innerText = select.options[select.selectedIndex]?.text || '';
+        
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'custom-dropdown-options';
+        
+        Array.from(select.options).forEach(option => {
+            const optDiv = document.createElement('div');
+            optDiv.className = 'custom-dropdown-option';
+            optDiv.innerText = option.text;
+            
+            optDiv.addEventListener('click', () => {
+                selected.innerText = option.text;
+                select.value = option.value;
+                optionsContainer.classList.remove('show');
+                select.dispatchEvent(new Event('change'));
+            });
+            
+            optionsContainer.appendChild(optDiv);
+        });
+        
+        selected.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.custom-dropdown-options').forEach(cont => {
+                if (cont !== optionsContainer) cont.classList.remove('show');
+            });
+            optionsContainer.classList.toggle('show');
+        });
+        
+        wrapper.appendChild(selected);
+        wrapper.appendChild(optionsContainer);
+        select.parentNode.insertBefore(wrapper, select.nextSibling);
+    });
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-dropdown-options').forEach(cont => {
+            cont.classList.remove('show');
+        });
+    });
 }
 
 function initSpeedControl() {
@@ -47,38 +138,138 @@ function initSpeedControl() {
     });
 }
 
+function showSnackbar(message) {
+    const snackbar = document.getElementById("snackbar");
+    if (!snackbar) return;
+    snackbar.textContent = message;
+    snackbar.className = "show";
+    setTimeout(() => { snackbar.className = snackbar.className.replace("show", ""); }, 4000);
+}
+
 async function initWASM() {
     try {
         Module = await PathfinderModule({
-            locateFile: (path) => path === 'pathfinder.wasm' ? 'dist/pathfinder.wasm' : path
+            locateFile: (path) => {
+                if (path === 'pathfinder.wasm') {
+                    return 'dist/pathfinder.wasm';
+                }
+                return path;
+            }
         });
-
-        const response = await fetch('graph.bin');
-        const buffer = await response.arrayBuffer();
         
+        const initialCity = document.getElementById('city-select')?.value || 'dc';
+        await loadCityGraph(initialCity); 
+    } catch (err) {
+        console.error("Initialization Failed:", err);
+        const statusEl = document.getElementById('status');
+        if (statusEl) statusEl.innerText = 'WASM / Data Load Failed.';
+        showSnackbar('Failed to initialize WASM engine.');
+    }
+}
+
+// Dynamic multi-path fetch strategy prevents 404 errors across different web server setups
+async function fetchGraphBuffer(cityName) {
+    const candidatePaths = [
+        `dist/${cityName}_graph.bin`,
+        `${cityName}_graph.bin`,
+        `./${cityName}_graph.bin`,
+        `/dist/${cityName}_graph.bin`
+    ];
+
+    for (const path of candidatePaths) {
+        try {
+            const response = await fetch(path);
+            if (response.ok) {
+                return await response.arrayBuffer();
+            }
+        } catch (e) {
+            // Try next candidate path
+        }
+    }
+    throw new Error(`Graph binary for city "${cityName}" not found.`);
+}
+
+async function loadCityGraph(cityName) {
+    const statusEl = document.getElementById('status');
+    if (statusEl) {
+        statusEl.innerText = `Loading ${cityName.toUpperCase()} data...`;
+        statusEl.style.color = 'orange';
+    }
+    
+    // Clean C++ WASM memory
+    if (router) { router.delete(); router = null; }
+    if (graph) { graph.delete(); graph = null; }
+    
+    nodeCoordinates = [];
+    
+    try {
+        const buffer = await fetchGraphBuffer(cityName);
         const dataView = new DataView(buffer);
-        const nodeCount = dataView.getUint32(8, true); // Little endian
+        const nodeCount = dataView.getUint32(8, true); 
         
         const HEADER_SIZE = 16;
-        const NODE_SIZE = 40; // uint64 + 4 doubles
+        const NODE_SIZE = 40; 
+        
+        let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
 
+        // Parse nodes and find the exact edges of the city
         for (let i = 0; i < nodeCount; i++) {
             const offset = HEADER_SIZE + (i * NODE_SIZE);
             const lat = dataView.getFloat64(offset + 8, true); 
             const lon = dataView.getFloat64(offset + 16, true); 
             nodeCoordinates.push([lat, lon]);
+            
+            if (lat < minLat) minLat = lat;
+            if (lat > maxLat) maxLat = lat;
+            if (lon < minLng) minLng = lon;
+            if (lon > maxLng) maxLng = lon;
+        }
+
+        if (nodeCount === 0 || !Number.isFinite(minLat)) {
+            throw new Error(`Invalid graph data for ${cityName}`);
         }
         
+        // Clean virtual WASM filesystem before writing
+        try { Module.FS.unlink('/graph.bin'); } catch (e) {}
         Module.FS.writeFile('/graph.bin', new Uint8Array(buffer));
+        
         graph = Module.GraphLoader.load('/graph.bin');
         router = new Module.Router(graph);
 
-        const statusEl = document.getElementById('status');
-        statusEl.innerText = `Ready! (${nodeCount.toLocaleString()} DC nodes loaded)`;
-        statusEl.style.color = 'green';
+        // --- DYNAMIC BOUNDS & CAMERA LOCK ---
+        
+        // Calculate the exact min/max bounds of the loaded city nodes
+        const bounds = [[minLat, minLng], [maxLat, maxLng]];
+        const cityBounds = L.latLngBounds(bounds);
+        
+        // 1. Dynamically calculate a padded area (30% wider than the city itself)
+        const restrictedBounds = cityBounds.pad(0.3);
+
+        // 2. Lock the map panning to this specific box
+        map.setMaxBounds(restrictedBounds);
+        
+        // 3. Make the borders "solid" so the camera doesn't bounce when hitting the edge
+        map.options.maxBoundsViscosity = 1.0;
+
+        // Fit the camera to the exact city bounds
+        map.fitBounds(cityBounds, { padding: [50, 50] });
+
+        // Set the zoom limit dynamically based on the bounding box size
+        // Allow zooming out 1 level past the ideal city fit, but no further
+        const cityZoomLevel = map.getBoundsZoom(cityBounds);
+        map.setMinZoom(Math.max(1, cityZoomLevel - 1));
+
+        if (statusEl) {
+            statusEl.innerText = `Ready! (${nodeCount.toLocaleString()} nodes)`;
+            statusEl.style.color = 'green';
+        }
     } catch (err) {
-        console.error("Initialization Failed:", err);
-        document.getElementById('status').innerText = 'Data Load Failed.';
+        console.error("Graph Load Failed:", err);
+        if (statusEl) {
+            statusEl.innerText = 'Data Load Failed.';
+            statusEl.style.color = 'red';
+        }
+        showSnackbar(`Error loading map data for ${cityName.toUpperCase()}. Ensure local web server is running.`);
     }
 }
 
@@ -103,21 +294,18 @@ function handleMapClick(latlng) {
     if (startNodeId === null) {
         startNodeId = nodeId;
         document.getElementById('start-node').innerText = nodeId;
-        const marker = L.circleMarker(coords, { radius: 8, color: 'green', fillOpacity: 1 }).addTo(map);
+        const marker = L.circleMarker(coords, { radius: 8, color: '#00ff00', fillOpacity: 1 }).addTo(map);
         mapLayers.push(marker);
     } else if (goalNodeId === null && nodeId !== startNodeId) {
         goalNodeId = nodeId;
         document.getElementById('goal-node').innerText = nodeId;
-        const marker = L.circleMarker(coords, { radius: 8, color: 'red', fillOpacity: 1 }).addTo(map);
+        const marker = L.circleMarker(coords, { radius: 8, color: '#ff3333', fillOpacity: 1 }).addTo(map);
         mapLayers.push(marker);
         document.getElementById('route-btn').disabled = false;
     }
 }
 
 function resetUI() {
-    // Invalidate whatever run is currently animating (search edges or the
-    // final path reveal) so its loop stops drawing/playing the next time it
-    // checks in, and cut off any tones still ringing from it.
     currentRunId++;
     stopAllTones();
 
@@ -126,16 +314,13 @@ function resetUI() {
     document.getElementById('start-node').innerText = 'None';
     document.getElementById('goal-node').innerText = 'None';
     document.getElementById('route-btn').disabled = true;
+    document.getElementById('distance-box').style.display = 'none';
     
     mapLayers.forEach(layer => map.removeLayer(layer));
     mapLayers = [];
     clearRouteLayers();
 }
 
-// Removes any drawn search edges, the final path line, and the meeting-node
-// marker — but leaves the start/goal selection markers alone. Called both on
-// a full reset and at the start of every route calculation, so re-running
-// with the same start/goal starts the animation over a clean map.
 function clearRouteLayers() {
     routeLayers.forEach(layer => map.removeLayer(layer));
     routeLayers = [];
@@ -143,8 +328,7 @@ function clearRouteLayers() {
 
 function getEnumVal(enumObj) {
     return (enumObj !== null && typeof enumObj === 'object' && enumObj.value !== undefined) 
-        ? enumObj.value 
-        : enumObj;
+        ? enumObj.value : enumObj;
 }
 
 function getVectorCount(vec) {
@@ -152,21 +336,6 @@ function getVectorCount(vec) {
     return Array.isArray(vec) ? vec.length : vec.size();
 }
 
-// --- Animation pacing ------------------------------------------------------
-// batchSize controls how many search events are processed between animation
-// pauses in visualizeSearch — a bigger batchSize means fewer pauses, so the
-// search animation runs faster. The user sets this directly via the
-// "Animation Speed" slider in the UI (see initSpeedControl).
-const DEFAULT_BATCH_SIZE = 100;
-const MIN_BATCH_SIZE = 1;
-const MAX_BATCH_SIZE = 500;
-const SEARCH_BATCH_DELAY_MS = 1; // ms paused per throttled batch during search
-
-const PATH_STEP_MS = 15;                // ms between each drawn final-path segment
-const PATH_NOTE_DURATION_S = 0.15;      // s a normal final-path note rings for
-const PATH_FINAL_NOTE_DURATION_S = 1.5; // s the last, held note rings for
-
-// Reads the user-selected animation speed (batchSize) from the slider.
 function getBatchSize() {
     const slider = document.getElementById('speed-slider');
     const value = slider ? parseInt(slider.value, 10) : DEFAULT_BATCH_SIZE;
@@ -174,56 +343,58 @@ function getBatchSize() {
     return Math.min(MAX_BATCH_SIZE, Math.max(MIN_BATCH_SIZE, value));
 }
 
+function calculateDistance(pathVector) {
+    let totalDistance = 0;
+    const count = getVectorCount(pathVector);
+    const isArray = Array.isArray(pathVector);
+    
+    for (let i = 0; i < count - 1; i++) {
+        const id1 = isArray ? pathVector[i] : pathVector.get(i);
+        const id2 = isArray ? pathVector[i + 1] : pathVector.get(i + 1);
+        const p1 = L.latLng(nodeCoordinates[id1]);
+        const p2 = L.latLng(nodeCoordinates[id2]);
+        totalDistance += map.distance(p1, p2); 
+    }
+    return (totalDistance / 1000).toFixed(2);
+}
+
 async function runRouting() {
     if (startNodeId === null || goalNodeId === null) return;
     document.getElementById('route-btn').disabled = true;
+    document.getElementById('distance-box').style.display = 'none';
 
-    // init audio on user click
     initAudio();
-
-    // This run's identity. resetUI() bumps currentRunId, so any check below
-    // of the form `runId !== currentRunId` tells us a reset happened after
-    // we started and we should stop animating/acting on stale results.
     const runId = ++currentRunId;
-
-    // Clear any edges/path from a previous calculation so re-running with
-    // the same start/goal starts the animation fresh instead of stacking
-    // layers on top of the old ones.
     clearRouteLayers();
 
     try {
         const algoChoice = document.getElementById('algo-select').value;
         let algorithm;
         
-        if (algoChoice === 'AStar') {
-            algorithm = Module.Algorithm.AStar;
-        } else if (algoChoice === 'DoubleAStar') {
-            algorithm = Module.Algorithm.Double_AStar;
-        } else if (algoChoice === 'DoubleDijkstra') {
-            algorithm = Module.Algorithm.Double_Dijkstra;
-        } else {
-            algorithm = Module.Algorithm.Dijkstra;
-        }
+        if (algoChoice === 'AStar') algorithm = Module.Algorithm.AStar;
+        else if (algoChoice === 'DoubleAStar') algorithm = Module.Algorithm.Double_AStar;
+        else if (algoChoice === 'DoubleDijkstra') algorithm = Module.Algorithm.Double_Dijkstra;
+        else algorithm = Module.Algorithm.Dijkstra;
 
         const result = router.route(algorithm, startNodeId, goalNodeId);
         
         if (result.found) {
             const batchSize = getBatchSize();
-
             await visualizeSearch(result.events, batchSize, runId);
             
-            // If resetUI() fired while the search was animating, don't go on
-            // to draw the final path over a map that's already been cleared.
             if (runId === currentRunId) {
-                // wait for the final path crescendo to finish animating
                 await drawFinalPath(result.path, runId);
 
-                if (runId === currentRunId && result.bidirectional) {
-                    drawMeetingNode(result.meetingNode);
+                if (runId === currentRunId) {
+                    if (result.bidirectional) drawMeetingNode(result.meetingNode);
+                    
+                    const distKm = calculateDistance(result.path);
+                    document.getElementById('route-distance').innerText = distKm;
+                    document.getElementById('distance-box').style.display = 'block';
                 }
             }
         } else {
-            alert('No path found in DC network.');
+            showSnackbar('No valid path found between selected nodes.');
         }
         
         if (result.events && typeof result.events.delete === 'function') result.events.delete();
@@ -231,12 +402,8 @@ async function runRouting() {
         
     } catch (err) {
         console.error('Routing failed:', err);
-        alert('A background error occurred. Press F12 to check the console for details.');
+        showSnackbar('A background error occurred. See console.');
     } finally {
-        // Only re-enable the button for the run that's still current. If a
-        // reset superseded us mid-animation, resetUI() already put the
-        // button back in its correct (disabled, no start/goal) state and we
-        // shouldn't clobber that.
         if (runId === currentRunId) {
             document.getElementById('route-btn').disabled = false;
         }
@@ -245,24 +412,19 @@ async function runRouting() {
 
 async function visualizeSearch(events, batchSize = 100, runId) {
     if (!events) return;
-    
     const isArray = Array.isArray(events);
     const count = getVectorCount(events);
 
     const valFoundEdge = getEnumVal(Module.SearchEventType.FoundEdge);
     const valForward = getEnumVal(Module.SearchDirection.Forward);
     const valBackward = getEnumVal(Module.SearchDirection.Backward);
-
     const seenEdges = new Set();
 
     for (let i = 0; i < count; i++) {
         const event = isArray ? events[i] : events.get(i);
         if (!event) continue;
         
-        const eventType = getEnumVal(event.type);
-        const eventDirection = getEnumVal(event.direction);
-
-        if (eventType === valFoundEdge) {
+        if (getEnumVal(event.type) === valFoundEdge) {
             const fromCoords = nodeCoordinates[event.from];
             const toCoords = nodeCoordinates[event.to];
             if (!fromCoords || !toCoords) continue;
@@ -270,29 +432,19 @@ async function visualizeSearch(events, batchSize = 100, runId) {
             const edgeKey = `${event.from}-${event.to}`;
             if (seenEdges.has(edgeKey)) continue;
 
-            let color, weight = 2, opacity = 0.4;
-            if (eventDirection === valForward) {
-                color = 'red';
-            } else if (eventDirection === valBackward) {
-                color = 'blue';
-            } else {
-                continue;
-            }
+            const direction = getEnumVal(event.direction);
+            const color = direction === valForward ? '#ff5252' : (direction === valBackward ? '#448aff' : null);
+            if (!color) continue;
 
-            const line = L.polyline([fromCoords, toCoords], { color, weight, opacity }).addTo(map);
+            const line = L.polyline([fromCoords, toCoords], { color, weight: 2, opacity: 0.3 }).addTo(map);
             routeLayers.push(line);
             seenEdges.add(edgeKey);
         }
 
-        // throttle animation speed
         if (i % batchSize === 0) {
-            // Randomize pitch slightly for a bubbling effect
             const pitch = 200 + (Math.random() * 150);
             playTone(pitch, 0.05, 0.02, 'sine'); 
             await new Promise(r => setTimeout(r, SEARCH_BATCH_DELAY_MS)); 
-
-            // resetUI() may have fired while we were waiting — stop drawing
-            // edges immediately instead of continuing over a cleared map.
             if (runId !== currentRunId) return;
         }
     }
@@ -300,102 +452,51 @@ async function visualizeSearch(events, batchSize = 100, runId) {
 
 async function drawFinalPath(pathVector, runId) {
     if (!pathVector) return;
-    
     const isArray = Array.isArray(pathVector);
     const count = getVectorCount(pathVector);
-    
     if (count === 0) return;
 
     const latlngs = [];
     let currentLine = null;
 
-    // A pleasant A-Major Scale (frequencies in Hz)
-    const friendlyScale = [
-        440.00, // A4 (Root)
-        493.88, // B4
-        554.37, // C#5
-        587.33, // D5
-        659.26, // E5
-        739.99, // F#5
-        830.61, // G#5
-        880.00, // A5 (Octave)
-    ];
+    const friendlyScale = [440.00, 493.88, 554.37, 587.33, 659.26, 739.99, 830.61, 880.00];
 
-    // draw the path step by step
     for (let i = 0; i < count; i++) {
         const nodeId = isArray ? pathVector[i] : pathVector.get(i);
         latlngs.push(nodeCoordinates[nodeId]);
         
         if (i > 0) {
             if (currentLine) map.removeLayer(currentLine);
-            
-            currentLine = L.polyline(latlngs, {
-                color: 'green',
-                weight: 6,
-                opacity: 0.9
-            }).addTo(map);
-            // Track immediately (not just at the end) so a mid-reveal reset
-            // can still find and remove whatever's currently drawn.
+            currentLine = L.polyline(latlngs, { color: '#00e676', weight: 6, opacity: 0.9 }).addTo(map);
             routeLayers.push(currentLine);
             
             const progress = i / (count - 1);
-            
-            // Map the path progress to an index in our musical scale
             const noteIndex = Math.floor(progress * (friendlyScale.length - 1));
             const freq = friendlyScale[noteIndex];
-            
-            // Scale volume gently
             const vol = 0.05 + (0.2 * progress); 
-            
-            // Check if this is the final segment of the path
             const isLastNote = (i === count - 1);
-            
-            // Hold the last note for its long crescendo, otherwise a short blip
             const duration = isLastNote ? PATH_FINAL_NOTE_DURATION_S : PATH_NOTE_DURATION_S; 
             
             playTone(freq, duration, vol, 'sine');
-            
-            // Wait before drawing the next segment
             await new Promise(r => setTimeout(r, PATH_STEP_MS)); 
-
-            // resetUI() may have fired while we were waiting — stop the
-            // reveal immediately instead of continuing over a cleared map.
             if (runId !== currentRunId) return;
         }
     }
     
-    if (currentLine) {
-        map.fitBounds(currentLine.getBounds(), { padding: [50, 50] });
-    }
+    if (currentLine) map.fitBounds(currentLine.getBounds(), { padding: [50, 50] });
 }
 
 function drawMeetingNode(nodeId) {
     if (nodeId === undefined || nodeId === 4294967295) return;
-    
     const nodeCoords = nodeCoordinates[nodeId];
     if (!nodeCoords) return;
-
-    const marker = L.circleMarker(nodeCoords, { 
-        radius: 12, 
-        color: 'purple',
-        fillColor: 'purple',
-        fillOpacity: 1,
-        weight: 5
-    }).addTo(map);
-    
+    const marker = L.circleMarker(nodeCoords, { radius: 10, color: '#e040fb', fillColor: '#e040fb', fillOpacity: 1, weight: 3 }).addTo(map);
     routeLayers.push(marker); 
 }
 
 function initAudio() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        // Shared limiter bus: every tone connects here instead of straight to
-        // destination. When many notes overlap (e.g. the 15ms-spaced scale
-        // notes each ringing for 150ms), their summed amplitude can exceed
-        // 0dBFS and hard-clip, which is what produces the harsh "ringing"
-        // between transitions. The compressor's high ratio/low threshold
-        // squashes that peak instead of letting it clip.
         masterCompressor = audioCtx.createDynamicsCompressor();
         masterCompressor.threshold.setValueAtTime(-24, audioCtx.currentTime);
         masterCompressor.knee.setValueAtTime(30, audioCtx.currentTime);
@@ -404,30 +505,20 @@ function initAudio() {
         masterCompressor.release.setValueAtTime(0.15, audioCtx.currentTime);
         masterCompressor.connect(audioCtx.destination);
     }
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
 function playTone(freq, duration, vol, type = 'sine') {
     if (!audioCtx || !document.getElementById('sound-toggle').checked) return;
-    
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     
     osc.type = type;
     osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    
-    // Prevent clipping by capping the maximum volume
     const safeVol = Math.min(vol, 0.3);
     
-    // Smooth Envelope (ADSR)
     gain.gain.setValueAtTime(0, audioCtx.currentTime);
-    
-    // 1. Fast, smooth attack to peak volume (prevents clicking)
     gain.gain.linearRampToValueAtTime(safeVol, audioCtx.currentTime + 0.01);
-    
-    // 2. Exponential decay gracefully fades out (prevents muddy overlap)
     gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
     
     osc.connect(gain);
@@ -435,19 +526,12 @@ function playTone(freq, duration, vol, type = 'sine') {
     
     const toneHandle = { osc, gain };
     activeTones.push(toneHandle);
-    osc.onended = () => {
-        activeTones = activeTones.filter(t => t !== toneHandle);
-    };
+    osc.onended = () => { activeTones = activeTones.filter(t => t !== toneHandle); };
     
     osc.start();
-    
-    // Add a tiny buffer to the stop time so the release finishes cleanly
     osc.stop(audioCtx.currentTime + duration + 0.1); 
 }
 
-// Immediately silences any tones currently ringing (e.g. a held final note)
-// with a fast fade-out to avoid an audible click, and clears them from
-// tracking. Called by resetUI() so a reset actually feels instant.
 function stopAllTones() {
     if (!audioCtx || activeTones.length === 0) return;
     const now = audioCtx.currentTime;
@@ -456,12 +540,10 @@ function stopAllTones() {
     activeTones.forEach(({ osc, gain }) => {
         try {
             gain.gain.cancelScheduledValues(now);
-            gain.gain.setValueAtTime(gain.gain.value, now); // hold at current level, avoids a jump
+            gain.gain.setValueAtTime(gain.gain.value, now); 
             gain.gain.linearRampToValueAtTime(0, now + FADE_S);
             osc.stop(now + FADE_S + 0.01);
-        } catch (e) {
-            // Oscillator may have already stopped naturally; safe to ignore.
-        }
+        } catch (e) {}
     });
     activeTones = [];
 }
