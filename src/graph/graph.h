@@ -5,10 +5,8 @@
 
 struct Node {
   uint64_t osmId;
-
   double lat;
   double lon;
-
   double x;
   double y;
 };
@@ -27,11 +25,11 @@ class Graph {
 
   uint32_t edgeBegin(uint32_t nodeId) const;
   uint32_t edgeEnd(uint32_t nodeId) const;
-
   const Edge& edge(uint32_t edgeId) const;
 
   double nodeLat(uint32_t edgeId) const;
   double nodeLon(uint32_t edgeId) const;
+  
 
  private:
   std::vector<Node> nodes_;

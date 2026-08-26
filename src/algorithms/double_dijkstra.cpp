@@ -135,7 +135,7 @@ SearchResult Double_Dijkstra::search(const Graph& graph, uint32_t start, uint32_
         
         // reconstruct forward half
         std::vector<uint32_t> path_f;
-        for (uint32_t curr = result.meetingNode; curr != start; curr = prev_f[curr]) {
+        for (uint32_t curr = result.meetingNode; curr != start && curr != UINT32_MAX; curr = prev_f[curr]) {
             path_f.push_back(curr);
         }
         path_f.push_back(start);
@@ -143,12 +143,14 @@ SearchResult Double_Dijkstra::search(const Graph& graph, uint32_t start, uint32_
         
         // reconstruct backward half
         std::vector<uint32_t> path_b;
-        for (uint32_t curr = prev_b[result.meetingNode]; curr != goal; curr = prev_b[curr]) {
-            path_b.push_back(curr);
+        if (result.meetingNode != goal) {
+            for (uint32_t curr = prev_b[result.meetingNode]; curr != goal && curr != UINT32_MAX; curr = prev_b[curr]) {
+                path_b.push_back(curr);
+            }
         }
         path_b.push_back(goal);
 
-        result.events.push_back(SearchEvent(SearchEventType::FoundNode, SearchDirection::Forward, result.meetingNode));
+        result.events.push_back({SearchEventType::FoundNode, SearchDirection::Forward, result.meetingNode, 0});
         
         // combine
         result.path = std::move(path_f);

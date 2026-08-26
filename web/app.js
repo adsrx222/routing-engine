@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 function initMap() {
     map = L.map('map').setView([38.9072, -77.0369], 13);
     
-    // Dark, less detailed map overlay
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '© OpenStreetMap contributors, © CARTO'
     }).addTo(map);
@@ -42,17 +41,13 @@ function initMap() {
     const algoSelect = document.getElementById('algo-select');
     if (algoSelect) {
         algoSelect.addEventListener('change', () => {
-            // Stop any ongoing animations and sounds
             currentRunId++;
             stopAllTones();
             
-            // Clear only the drawn routes and search edges, not the start/goal markers
             clearRouteLayers();
             
-            // Hide the distance box from the previous run
             document.getElementById('distance-box').style.display = 'none';
             
-            // Re-enable the calculate button if both points are already selected
             if (startNodeId !== null && goalNodeId !== null) {
                 document.getElementById('route-btn').disabled = false;
             }
@@ -167,13 +162,13 @@ async function initWASM() {
     }
 }
 
-// Dynamic multi-path fetch strategy prevents 404 errors across different web server setups
 async function fetchGraphBuffer(cityName) {
     const candidatePaths = [
-        `dist/${cityName}_graph.bin`,
-        `${cityName}_graph.bin`,
-        `./${cityName}_graph.bin`,
-        `/dist/${cityName}_graph.bin`
+        `graphs/${cityName}_graph.bin`,
+        `./graphs/${cityName}_graph.bin`,
+        `/graphs/${cityName}_graph.bin`,
+        `web/graphs/${cityName}_graph.bin`,
+        `/web/graphs/${cityName}_graph.bin`
     ];
 
     for (const path of candidatePaths) {
@@ -182,9 +177,7 @@ async function fetchGraphBuffer(cityName) {
             if (response.ok) {
                 return await response.arrayBuffer();
             }
-        } catch (e) {
-            // Try next candidate path
-        }
+        } catch (e) {}
     }
     throw new Error(`Graph binary for city "${cityName}" not found.`);
 }
@@ -196,7 +189,6 @@ async function loadCityGraph(cityName) {
         statusEl.style.color = 'orange';
     }
     
-    // Clean C++ WASM memory
     if (router) { router.delete(); router = null; }
     if (graph) { graph.delete(); graph = null; }
     
@@ -212,7 +204,6 @@ async function loadCityGraph(cityName) {
         
         let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
 
-        // Parse nodes and find the exact edges of the city
         for (let i = 0; i < nodeCount; i++) {
             const offset = HEADER_SIZE + (i * NODE_SIZE);
             const lat = dataView.getFloat64(offset + 8, true); 
@@ -229,33 +220,25 @@ async function loadCityGraph(cityName) {
             throw new Error(`Invalid graph data for ${cityName}`);
         }
         
-        // Clean virtual WASM filesystem before writing
         try { Module.FS.unlink('/graph.bin'); } catch (e) {}
         Module.FS.writeFile('/graph.bin', new Uint8Array(buffer));
         
         graph = Module.GraphLoader.load('/graph.bin');
         router = new Module.Router(graph);
-
-        // --- DYNAMIC BOUNDS & CAMERA LOCK ---
         
-        // Calculate the exact min/max bounds of the loaded city nodes
+        // calculate the exact min/max bounds of the loaded city nodes
         const bounds = [[minLat, minLng], [maxLat, maxLng]];
         const cityBounds = L.latLngBounds(bounds);
         
-        // 1. Dynamically calculate a padded area (30% wider than the city itself)
+        // calculate a padded area
         const restrictedBounds = cityBounds.pad(0.3);
 
-        // 2. Lock the map panning to this specific box
         map.setMaxBounds(restrictedBounds);
         
-        // 3. Make the borders "solid" so the camera doesn't bounce when hitting the edge
         map.options.maxBoundsViscosity = 1.0;
 
-        // Fit the camera to the exact city bounds
         map.fitBounds(cityBounds, { padding: [50, 50] });
 
-        // Set the zoom limit dynamically based on the bounding box size
-        // Allow zooming out 1 level past the ideal city fit, but no further
         const cityZoomLevel = map.getBoundsZoom(cityBounds);
         map.setMinZoom(Math.max(1, cityZoomLevel - 1));
 
@@ -355,7 +338,11 @@ function calculateDistance(pathVector) {
         const p2 = L.latLng(nodeCoordinates[id2]);
         totalDistance += map.distance(p1, p2); 
     }
-    return (totalDistance / 1000).toFixed(2);
+    
+    return {
+        km: (totalDistance / 1000).toFixed(1),
+        miles: (totalDistance / 1609.344).toFixed(1) // 1 mile = 1609.344 meters
+    };
 }
 
 async function runRouting() {
@@ -388,8 +375,8 @@ async function runRouting() {
                 if (runId === currentRunId) {
                     if (result.bidirectional) drawMeetingNode(result.meetingNode);
                     
-                    const distKm = calculateDistance(result.path);
-                    document.getElementById('route-distance').innerText = distKm;
+                    const distMiles = calculateDistance(result.path).miles;
+                    document.getElementById('route-distance').innerText = distMiles;
                     document.getElementById('distance-box').style.display = 'block';
                 }
             }
@@ -444,10 +431,23 @@ async function visualizeSearch(events, batchSize = 100, runId) {
         if (i % batchSize === 0) {
             const pitch = 200 + (Math.random() * 150);
             playTone(pitch, 0.05, 0.02, 'sine'); 
+            
+            mapLayers.forEach(layer => {
+                if (layer && typeof layer.bringToFront === 'function') {
+                    layer.bringToFront();
+                }
+            });
+
             await new Promise(r => setTimeout(r, SEARCH_BATCH_DELAY_MS)); 
             if (runId !== currentRunId) return;
         }
     }
+
+    mapLayers.forEach(layer => {
+        if (layer && typeof layer.bringToFront === 'function') {
+            layer.bringToFront();
+        }
+    });
 }
 
 async function drawFinalPath(pathVector, runId) {
@@ -470,6 +470,12 @@ async function drawFinalPath(pathVector, runId) {
             currentLine = L.polyline(latlngs, { color: '#00e676', weight: 6, opacity: 0.9 }).addTo(map);
             routeLayers.push(currentLine);
             
+            mapLayers.forEach(layer => {
+                if (layer && typeof layer.bringToFront === 'function') {
+                    layer.bringToFront();
+                }
+            });
+
             const progress = i / (count - 1);
             const noteIndex = Math.floor(progress * (friendlyScale.length - 1));
             const freq = friendlyScale[noteIndex];

@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
 # Example:
-#   python scripts/download_graphs.py /path/to/workspace
+#   python scripts/download_graphs.py /path/to/workspace /path/to/web
 #
-# Example:
-#   python scripts/download_graphs.py ./workspace
+#   python scripts/download_graphs.py ./workspace ./web/graphs
 
 import argparse
 import os
@@ -93,12 +92,12 @@ def write_graph_binary(G, output_path):
 
     with open(output_path, "wb") as f:
 
-        # Header
+        # header
         f.write(
             struct.pack(
                 HEADER_FORMAT,
                 b"NAV1",
-                FORMAT_VERSION,              # format version
+                FORMAT_VERSION,
                 node_count,
                 edge_count,
             )
@@ -107,11 +106,11 @@ def write_graph_binary(G, output_path):
         for osm_id in osm_nodes:
             data = G.nodes[osm_id]
 
-            # Projected coordinates
+            # projected coordinates
             x = float(data["x"])
             y = float(data["y"])
 
-            # Geographic coordinates
+            # geographic coordinates
             lon = float(data["original_lon"])
             lat = float(data["original_lat"])
 
@@ -163,9 +162,6 @@ def create_mock_graph():
     G.add_node(1, x=1.0, y=0.0, original_lon=-77.1, original_lat=38.1)
     G.add_node(2, x=2.0, y=0.0, original_lon=-77.2, original_lat=38.2)
     
-    # 0 -> 2 direct is 20.0m
-    # 0 -> 1 -> 2 indirect is 15.0m (10.0 + 5.0). 
-    # Dijkstra should prefer the 0 -> 1 -> 2 route.
     G.add_edge(0, 1, length=10.0)
     G.add_edge(1, 2, length=5.0)
     G.add_edge(0, 2, length=20.0)
@@ -184,26 +180,34 @@ def main():
     parser.add_argument(
         "workspace",
         help=(
-            "Workspace directory where the generated "
-            "graph files will be stored."
+            "Workspace directory where the cache "
+            "files will be stored."
+        ),
+    )
+    
+    parser.add_argument(
+        "web",
+        help=(
+            "Web directory where the generated "
+            "graph binary files will be stored."
         ),
     )
 
     args = parser.parse_args()
     workspace = os.path.abspath(args.workspace)
+    web_dir = os.path.abspath(args.web)
     
-    # Define and create the output directory path
-    dist_dir = os.path.join(workspace, "web")
-    os.makedirs(dist_dir, exist_ok=True)
+    # define and create the output directory path
+    os.makedirs(web_dir, exist_ok=True)
     
-    # Define cache directory path
+    # define cache directory path
     cache_dir = os.path.join(workspace, ".osmnx_cache")
     os.makedirs(cache_dir, exist_ok=True)
 
     ox.settings.use_cache = True
     ox.settings.cache_folder = cache_dir
 
-    # Iterate through all configured cities
+    # iterate through all configured cities
     for city_prefix, place_query in CITIES.items():
         print(f"\n--- Downloading OSM data for {place_query} ---")
 
@@ -225,21 +229,21 @@ def main():
             data["original_lon"] = float(original["original_lon"])
             data["original_lat"] = float(original["original_lat"])
 
-        # Output to the new web/dist folder
-        output_graph = os.path.join(dist_dir, f"{city_prefix}_graph.bin")
+        # output to the new web directory
+        output_graph = os.path.join(web_dir, f"{city_prefix}_graph.bin")
 
         write_graph_binary(G_projected, output_graph)
     
-    # Generate the mock graph once at the end
+    # generate mock graph once at the end
     mock_G = create_mock_graph()
-    mock_output = os.path.join(dist_dir, "mock_graph.bin")
+    mock_output = os.path.join(web_dir, "mock_graph.bin")
     
     print("\n--- Generating mock graph for tests ---")
     write_graph_binary(mock_G, mock_output)
 
-    print("Finished downloading all city networks!")
+    print("Finished downloading.")
     print(f"  Workspace: {workspace}")
-    print(f"  Output Dir: {dist_dir}")
+    print(f"  Output Dir: {web_dir}")
     print(f"  Cache:     {cache_dir}\n")
 
 

@@ -13,6 +13,8 @@ compile_commands.json
 
 # WebAssembly & Frontend Build Output
 web/dist/
+web/graphs
+workspace
 *.wasm
 
 # Binary Data Files
