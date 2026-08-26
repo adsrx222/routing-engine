@@ -35,7 +35,7 @@ jobs:
         run: pip install -r scripts/requirements.txt
 
       - name: Download graph nodes
-        run: python scripts/download_graphs.py
+        run: python scripts/download_graphs.py ./workspace ./web/graphs
 
       # set up emscripten and build wasm
       - name: Setup Emscripten compiler
