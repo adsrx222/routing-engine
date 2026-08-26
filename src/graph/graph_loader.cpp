@@ -142,5 +142,30 @@ Graph GraphLoader::load(const char* filename) {
     edge.distance = binaryEdge.distance;
   }
 
+  graph.reverse_offsets_.assign(header.nodeCount + 1, 0);
+  graph.reverse_edges_.resize(header.edgeCount);
+
+  // count incoming edges for each node
+  for (const auto& edge : graph.edges_) {
+    graph.reverse_offsets_[edge.to + 1]++;
+  }
+
+  // prefix sum to compute offsets
+  for (uint32_t i = 0; i < header.nodeCount; ++i) {
+    graph.reverse_offsets_[i + 1] += graph.reverse_offsets_[i];
+  }
+
+  // populate reverse edges
+  std::vector<uint32_t> current_reverse_offsets = graph.reverse_offsets_;
+  for (uint32_t u = 0; u < header.nodeCount; ++u) {
+    for (uint32_t i = graph.offsets_[u]; i < graph.offsets_[u+1]; ++i) {
+      uint32_t v = graph.edges_[i].to;
+      float dist = graph.edges_[i].distance;
+      
+      uint32_t rev_index = current_reverse_offsets[v]++;
+      graph.reverse_edges_[rev_index] = {u, dist}; // edge points back to u
+    }
+  }
+
   return graph;
 }

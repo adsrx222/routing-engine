@@ -18,7 +18,6 @@ const PATH_NOTE_DURATION_S = 0.15;
 const PATH_FINAL_NOTE_DURATION_S = 1.5; 
 
 document.addEventListener('DOMContentLoaded', async () => {
-    setupCustomDropdowns();
     initMap();
     await initWASM();
 });
@@ -65,59 +64,6 @@ function initMap() {
     initSpeedControl();
 }
 
-function setupCustomDropdowns() {
-    const selects = document.querySelectorAll('select');
-    
-    selects.forEach(select => {
-        if (select.dataset.customized) return;
-        select.dataset.customized = 'true';
-        select.style.display = 'none';
-
-        const wrapper = document.createElement('div');
-        wrapper.className = 'custom-dropdown';
-        
-        const selected = document.createElement('div');
-        selected.className = 'custom-dropdown-selected';
-        selected.innerText = select.options[select.selectedIndex]?.text || '';
-        
-        const optionsContainer = document.createElement('div');
-        optionsContainer.className = 'custom-dropdown-options';
-        
-        Array.from(select.options).forEach(option => {
-            const optDiv = document.createElement('div');
-            optDiv.className = 'custom-dropdown-option';
-            optDiv.innerText = option.text;
-            
-            optDiv.addEventListener('click', () => {
-                selected.innerText = option.text;
-                select.value = option.value;
-                optionsContainer.classList.remove('show');
-                select.dispatchEvent(new Event('change'));
-            });
-            
-            optionsContainer.appendChild(optDiv);
-        });
-        
-        selected.addEventListener('click', (e) => {
-            e.stopPropagation();
-            document.querySelectorAll('.custom-dropdown-options').forEach(cont => {
-                if (cont !== optionsContainer) cont.classList.remove('show');
-            });
-            optionsContainer.classList.toggle('show');
-        });
-        
-        wrapper.appendChild(selected);
-        wrapper.appendChild(optionsContainer);
-        select.parentNode.insertBefore(wrapper, select.nextSibling);
-    });
-
-    document.addEventListener('click', () => {
-        document.querySelectorAll('.custom-dropdown-options').forEach(cont => {
-            cont.classList.remove('show');
-        });
-    });
-}
-
 function initSpeedControl() {
     const slider = document.getElementById('speed-slider');
     const valueLabel = document.getElementById('speed-value');
@@ -156,8 +102,8 @@ async function initWASM() {
         await loadCityGraph(initialCity); 
     } catch (err) {
         console.error("Initialization Failed:", err);
-        const statusEl = document.getElementById('status');
-        if (statusEl) statusEl.innerText = 'WASM / Data Load Failed.';
+        document.getElementById('node-count').innerText = 'WASM / Data Load Failed.';
+        document.getElementById('status-square').className = 'status-indicator error';
         showSnackbar('Failed to initialize WASM engine.');
     }
 }
@@ -183,11 +129,11 @@ async function fetchGraphBuffer(cityName) {
 }
 
 async function loadCityGraph(cityName) {
-    const statusEl = document.getElementById('status');
-    if (statusEl) {
-        statusEl.innerText = `Loading ${cityName.toUpperCase()} data...`;
-        statusEl.style.color = 'orange';
-    }
+    const nodeCountEl = document.getElementById('node-count');
+    const statusSquare = document.getElementById('status-square');
+    
+    if (nodeCountEl) nodeCountEl.innerText = `Loading ${cityName.toUpperCase()} data...`;
+    if (statusSquare) statusSquare.className = 'status-indicator';
     
     if (router) { router.delete(); router = null; }
     if (graph) { graph.delete(); graph = null; }
@@ -226,11 +172,9 @@ async function loadCityGraph(cityName) {
         graph = Module.GraphLoader.load('/graph.bin');
         router = new Module.Router(graph);
         
-        // calculate the exact min/max bounds of the loaded city nodes
         const bounds = [[minLat, minLng], [maxLat, maxLng]];
         const cityBounds = L.latLngBounds(bounds);
         
-        // calculate a padded area
         const restrictedBounds = cityBounds.pad(0.3);
 
         map.setMaxBounds(restrictedBounds);
@@ -242,15 +186,15 @@ async function loadCityGraph(cityName) {
         const cityZoomLevel = map.getBoundsZoom(cityBounds);
         map.setMinZoom(Math.max(1, cityZoomLevel - 1));
 
-        if (statusEl) {
-            statusEl.innerText = `Ready! (${nodeCount.toLocaleString()} nodes)`;
-            statusEl.style.color = 'green';
+        if (nodeCountEl) {
+            nodeCountEl.innerText = `${nodeCount.toLocaleString()} nodes`;
+            if (statusSquare) statusSquare.className = 'status-indicator ready';
         }
     } catch (err) {
         console.error("Graph Load Failed:", err);
-        if (statusEl) {
-            statusEl.innerText = 'Data Load Failed.';
-            statusEl.style.color = 'red';
+        if (nodeCountEl) {
+            nodeCountEl.innerText = 'Data Load Failed.';
+            if (statusSquare) statusSquare.className = 'status-indicator error';
         }
         showSnackbar(`Error loading map data for ${cityName.toUpperCase()}. Ensure local web server is running.`);
     }
@@ -277,11 +221,13 @@ function handleMapClick(latlng) {
     if (startNodeId === null) {
         startNodeId = nodeId;
         document.getElementById('start-node').innerText = nodeId;
+        document.getElementById('start-coords').innerText = `[${coords[0].toFixed(5)}, ${coords[1].toFixed(5)}]`;
         const marker = L.circleMarker(coords, { radius: 8, color: '#00ff00', fillOpacity: 1 }).addTo(map);
         mapLayers.push(marker);
     } else if (goalNodeId === null && nodeId !== startNodeId) {
         goalNodeId = nodeId;
         document.getElementById('goal-node').innerText = nodeId;
+        document.getElementById('goal-coords').innerText = `[${coords[0].toFixed(5)}, ${coords[1].toFixed(5)}]`;
         const marker = L.circleMarker(coords, { radius: 8, color: '#ff3333', fillOpacity: 1 }).addTo(map);
         mapLayers.push(marker);
         document.getElementById('route-btn').disabled = false;
@@ -296,6 +242,8 @@ function resetUI() {
     goalNodeId = null;
     document.getElementById('start-node').innerText = 'None';
     document.getElementById('goal-node').innerText = 'None';
+    document.getElementById('start-coords').innerText = '';
+    document.getElementById('goal-coords').innerText = '';
     document.getElementById('route-btn').disabled = true;
     document.getElementById('distance-box').style.display = 'none';
     
@@ -341,7 +289,7 @@ function calculateDistance(pathVector) {
     
     return {
         km: (totalDistance / 1000).toFixed(1),
-        miles: (totalDistance / 1609.344).toFixed(1) // 1 mile = 1609.344 meters
+        miles: (totalDistance / 1609.344).toFixed(1)
     };
 }
 
@@ -376,7 +324,26 @@ async function runRouting() {
                     if (result.bidirectional) drawMeetingNode(result.meetingNode);
                     
                     const distMiles = calculateDistance(result.path).miles;
-                    document.getElementById('route-distance').innerText = distMiles;
+                    document.getElementById('route-distance').innerText = `${distMiles} mi`;
+                    
+                    const pathNodeCount = getVectorCount(result.path);
+                    const edgeCount = pathNodeCount > 0 ? pathNodeCount - 1 : 0;
+                    document.getElementById('route-edges').innerText = `${edgeCount} edges`;
+                    
+                    const meetingNodeRow = document.getElementById('meeting-node-row');
+                    const meetingCoordsRow = document.getElementById('meeting-coords-row');
+                    
+                    if (result.bidirectional && result.meetingNode !== undefined && result.meetingNode !== 4294967295) {
+                        const coords = nodeCoordinates[result.meetingNode];
+                        document.getElementById('meeting-node').innerText = result.meetingNode;
+                        document.getElementById('meeting-coords').innerText = `[${coords[0].toFixed(5)}, ${coords[1].toFixed(5)}]`;
+                        meetingNodeRow.style.display = 'list-item';
+                        meetingCoordsRow.style.display = 'list-item';
+                    } else {
+                        meetingNodeRow.style.display = 'none';
+                        meetingCoordsRow.style.display = 'none';
+                    }
+
                     document.getElementById('distance-box').style.display = 'block';
                 }
             }
@@ -467,7 +434,7 @@ async function drawFinalPath(pathVector, runId) {
         
         if (i > 0) {
             if (currentLine) map.removeLayer(currentLine);
-            currentLine = L.polyline(latlngs, { color: '#00e676', weight: 6, opacity: 0.9 }).addTo(map);
+            currentLine = L.polyline(latlngs, { color: '#00b300', weight: 6, opacity: 0.9 }).addTo(map);
             routeLayers.push(currentLine);
             
             mapLayers.forEach(layer => {
@@ -496,7 +463,7 @@ function drawMeetingNode(nodeId) {
     if (nodeId === undefined || nodeId === 4294967295) return;
     const nodeCoords = nodeCoordinates[nodeId];
     if (!nodeCoords) return;
-    const marker = L.circleMarker(nodeCoords, { radius: 10, color: '#e040fb', fillColor: '#e040fb', fillOpacity: 1, weight: 3 }).addTo(map);
+    const marker = L.circleMarker(nodeCoords, { radius: 10, color: '#b000cc', fillColor: '#b000cc', fillOpacity: 1, weight: 3 }).addTo(map);
     routeLayers.push(marker); 
 }
 

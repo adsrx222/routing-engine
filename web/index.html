@@ -5,112 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pathfinder Visualizer</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #333;
-            --border-radius: 12px;
-            --primary: #007bff;
-            --primary-hover: #0056b3;
-            --error: #f44336;
-        }
-        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #111; }
-        #map { width: 100vw; height: 100vh; background: #1a1a1a; }
-        
-        #ui-panel {
-            position: absolute; top: 15px; right: 15px; z-index: 1000;
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
-            padding: 20px; border-radius: var(--border-radius);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3); width: 320px; transition: all 0.3s ease;
-        }
-        h2 { margin-top: 0; font-size: 1.4em; color: var(--text-color); }
-        select, button {
-            width: 100%; padding: 10px; margin-top: 8px; border-radius: 8px;
-            border: 1px solid #ddd; font-size: 14px; transition: all 0.2s ease;
-        }
-        select { background-color: #f9f9f9; cursor: pointer; outline: none; }
-        select:hover, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(0,123,255,0.25); }
-        
-        button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: 600; }
-        button:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-1px); }
-        button:disabled { background: #ccc; cursor: not-allowed; transform: none; }
-        
-        .help-text { font-size: 0.85em; color: #666; font-style: italic; margin-bottom: 10px; }
-        .stat-box { background: #f0f4f8; padding: 10px; border-radius: 8px; margin: 10px 0; display: none; }
-        
-        /* Snackbar Notification */
-        #snackbar {
-            visibility: hidden; min-width: 250px; background-color: var(--error);
-            color: #fff; text-align: center; border-radius: 8px; padding: 16px;
-            position: fixed; z-index: 2000; left: 50%; bottom: 30px;
-            transform: translateX(-50%) translateY(20px); opacity: 0; 
-            transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
-            font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        #snackbar.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        .custom-dropdown {
-            position: relative;
-            width: 100%;
-            margin-top: 8px;
-            font-size: 14px;
-        }
-        .custom-dropdown-selected {
-            background-color: var(--bg-color); /* White background */
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            cursor: pointer;
-            user-select: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .custom-dropdown-selected:after {
-            content: '▼';
-            position: absolute;
-            right: 12px;
-            top: 10px;
-            font-size: 12px;
-            color: #666;
-        }
-        .custom-dropdown-selected:hover {
-            border-color: var(--primary);
-        }
-        .custom-dropdown-options {
-            display: none;
-            position: absolute;
-            background-color: var(--bg-color);
-            width: 100%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            margin-top: 4px;
-            z-index: 1001;
-            overflow: hidden;
-        }
-        .custom-dropdown-options.show {
-            display: block;
-        }
-        .custom-dropdown-option {
-            padding: 10px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        .custom-dropdown-option:hover {
-            background-color: #f0f4f8;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
     <div id="map"></div>
     <div id="snackbar"></div>
     
     <div id="ui-panel">
-        <h2>Routing Engine</h2>
-        <div id="status">Loading WASM...</div>
-        <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
+        <div class="header-container">
+            <h2>Routing Engine</h2>
+            <div id="status-square" class="status-indicator"></div>
+        </div>
+        <div id="node-count" class="node-count">Loading WASM...</div>
+        
+        <hr>
         
         <p><strong>Select City:</strong>
-            <select id="city-select" class="custom-select">
+            <select id="city-select">
                 <option value="dc">Washington DC</option>
                 <option value="ny">New York</option>
                 <option value="sf">San Francisco</option>
@@ -118,12 +29,23 @@
             </select>
         </p>
         
-        <p class="help-text">Click anywhere on the map to select your start and goal locations.</p>
-        <p><strong>Start Node:</strong> <span id="start-node">None</span></p>
-        <p><strong>Goal Node:</strong> <span id="goal-node">None</span></p>
+        <p class="help-text">Click anywhere on the map to select your start and end locations.</p>
+        
+        <!-- Node Subsection -->
+        <div class="node-section">
+            <h3>Selected Points</h3>
+            <div class="node-row">
+                <div class="node-title"><span class="dot-start">●</span> Start Node: <span id="start-node" style="font-weight:normal; color:#333;">None</span></div>
+                <div id="start-coords" class="node-data"></div>
+            </div>
+            <div class="node-row">
+                <div class="node-title"><span class="dot-goal">●</span> End Node: <span id="goal-node" style="font-weight:normal; color:#333;">None</span></div>
+                <div id="goal-coords" class="node-data"></div>
+            </div>
+        </div>
         
         <p><strong>Algorithm:</strong> 
-            <select id="algo-select" class="custom-select">
+            <select id="algo-select">
                 <option value="Dijkstra">Dijkstra</option>
                 <option value="AStar">A* Search</option>
                 <option value="DoubleDijkstra">Bidirectional Dijkstra</option>
@@ -131,8 +53,27 @@
             </select>
         </p>
         
-        <div id="distance-box" class="stat-box">
-            <strong>Total Distance:</strong> <span id="route-distance">0.00</span> mi
+        <!-- Route Statistics Section -->
+        <div id="distance-box" class="node-section" style="display: none;">
+            <h3>Route Statistics</h3>
+            <ul class="stats-list">
+                <li>
+                    <strong>Total Distance:</strong> 
+                    <span id="route-distance" class="stat-value">0.00 mi</span>
+                </li>
+                <li>
+                    <strong>Path Length:</strong> 
+                    <span id="route-edges" class="stat-value">0 edges</span>
+                </li>
+                <li id="meeting-node-row" style="display: none;">
+                    <strong>Meeting Node:</strong> 
+                    <span id="meeting-node" class="stat-value">None</span>
+                </li>
+                <li id="meeting-coords-row" style="display: none;">
+                    <strong>Meeting Coords:</strong> 
+                    <span id="meeting-coords" class="node-data" style="margin-left: 0;"></span>
+                </li>
+            </ul>
         </div>
 
         <p>
@@ -145,7 +86,7 @@
             </label>
         </p>
         <button id="route-btn" disabled>Calculate Route</button>
-        <button id="reset-btn" style="background: #6c757d;">Reset Map</button>
+        <button id="reset-btn" class="secondary-btn">Reset Map</button>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

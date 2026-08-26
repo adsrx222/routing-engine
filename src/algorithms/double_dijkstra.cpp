@@ -100,11 +100,11 @@ SearchResult Double_Dijkstra::search(const Graph& graph, uint32_t start, uint32_
         QueueEntry curr_b = queue_b.top();
         queue_b.pop();
         if (curr_b.distance <= dist_b[curr_b.node]) { // ignore stale priority queue entries
-            uint32_t begin = graph.edgeBegin(curr_b.node);
-            uint32_t end = graph.edgeEnd(curr_b.node);
+            uint32_t begin = graph.reverseEdgeBegin(curr_b.node);
+            uint32_t end = graph.reverseEdgeEnd(curr_b.node);
 
             for (uint32_t i = begin; i < end; ++i) {
-                const Edge& edge = graph.edge(i);
+                const Edge& edge = graph.reverseEdge(i);
                 uint32_t neighbor = edge.to;
 
                 result.events.push_back({SearchEventType::FoundEdge, SearchDirection::Backward, curr_b.node, neighbor});

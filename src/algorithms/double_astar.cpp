@@ -93,8 +93,8 @@ SearchResult Double_AStar::search(const Graph& graph, uint32_t start, uint32_t g
         // backwards step
         QueueEntry curr_b = queue_b.top(); queue_b.pop();
         if (curr_b.g_score <= g_score_b[curr_b.node]) {
-            for (uint32_t i = graph.edgeBegin(curr_b.node); i < graph.edgeEnd(curr_b.node); ++i) {
-                const Edge& edge = graph.edge(i);
+            for (uint32_t i = graph.reverseEdgeBegin(curr_b.node); i < graph.reverseEdgeEnd(curr_b.node); ++i) {
+                const Edge& edge = graph.reverseEdge(i);
                 result.events.push_back({SearchEventType::FoundEdge, SearchDirection::Backward, curr_b.node, edge.to});
                 result.nodesExpanded++;
                 

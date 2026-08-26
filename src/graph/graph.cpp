@@ -31,3 +31,15 @@ double Graph::nodeLat(uint32_t nodeId) const {
 double Graph::nodeLon(uint32_t nodeId) const {
     return nodes_[nodeId].lon;
 }
+
+uint32_t Graph::reverseEdgeBegin(uint32_t nodeId) const {
+    return static_cast<uint32_t>(reverse_offsets_[nodeId]);
+}
+
+uint32_t Graph::reverseEdgeEnd(uint32_t nodeId) const {
+    return static_cast<uint32_t>(reverse_offsets_[nodeId + 1]);
+}
+
+const Edge& Graph::reverseEdge(uint32_t edgeId) const {
+    return reverse_edges_[edgeId];
+}

@@ -29,12 +29,18 @@ class Graph {
 
   double nodeLat(uint32_t edgeId) const;
   double nodeLon(uint32_t edgeId) const;
-  
+
+  uint32_t reverseEdgeBegin(uint32_t nodeId) const;
+  uint32_t reverseEdgeEnd(uint32_t nodeId) const;
+  const Edge& reverseEdge(uint32_t edgeId) const;
 
  private:
   std::vector<Node> nodes_;
   std::vector<uint32_t> offsets_;
   std::vector<Edge> edges_;
+
+  std::vector<uint32_t> reverse_offsets_;
+  std::vector<Edge> reverse_edges_;
 
   friend class GraphLoader;
 };
