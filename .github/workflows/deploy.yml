@@ -1,0 +1,60 @@
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # set up python and download nodes
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Python requirements
+        run: pip install -r scripts/requirements.txt
+
+      - name: Download graph nodes
+        run: python scripts/download_graphs.py
+
+      # set up emscripten and build wasm
+      - name: Setup Emscripten compiler
+        uses: mymindstorm/setup-emsdk@v14
+
+      - name: Build WASM files
+        run: |
+          chmod +x scripts/build_wasm.sh
+          ./scripts/build_wasm.sh
+
+      # configure and deploy to GitHub Pages
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload web artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './web'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
