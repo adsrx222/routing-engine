@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 function initMap() {
     map = L.map('map').setView([38.9072, -77.0369], 13);
     
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap contributors, © CARTO'
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_2kwn_1_559d5ae6425970565c24eb3d', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
     }).addTo(map);
 
     map.on('click', (e) => {
